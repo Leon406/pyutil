@@ -16,7 +16,5 @@ def b64_decode(s):
     return str(base64.b64decode(s), 'utf-8')
 
 
-if __name__ == "__main_":
-
-
-    pass
+if __name__ == "__main__":
+    print(b64("Leon"))
