@@ -5,9 +5,10 @@ from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED
 
 import requests
 from Crypto.Cipher import AES
-
+import os.path
+from pathlib import Path
 # 拉勾通过cookies进行付费校验,必须要购买课程的
-COOKIE = 'user_trace_token=20200225101518-22575ce0-8112-46ac-a704-038b9b96b89d; _ga=GA1.2.2069224394.1582596922; LGUID=20200225101519-20460062-7ff1-4746-9fff-ea885836dcec; LG_HAS_LOGIN=1; index_location_city=%E6%9D%AD%E5%B7%9E; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1590298113,1590823497,1590912149,1592307083; LG_LOGIN_USER_ID=bf2b02414504f9afa421d551576075debea8588b70b36529; privacyPolicyPopup=false; _putrc=FC755B67B4B1175F; login=true; unick=%E6%96%BD%E7%81%B5%E9%BE%99; sensorsdata2015session=%7B%7D; LGRID=20200712172852-8a836bfe-a00d-41ff-b682-2b1d871c5163; X_HTTP_TOKEN=7853a618605f1cdb63164549519344137bb1244aa1; JSESSIONID=ABAAAECABCAAACDBB0F68BFE0B41CFBB638401F2B0B0AB5; gate_login_token=ca5ca6a779a8eae4897e3be8c3491f628a6cc347b9e0384d; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%228686565%22%2C%22%24device_id%22%3A%2216ddf03ac49303-0b8a475ad2b891-36664c08-2073600-16ddf03ac4a4ce%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_referrer%22%3A%22%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24os%22%3A%22Windows%22%2C%22%24browser%22%3A%22Chrome%22%2C%22%24browser_version%22%3A%2278.0.3904.108%22%7D%2C%22first_id%22%3A%2217342cdd3d773-06ee9f6f48fb88-376b4502-2073600-17342cdd3d8af4%22%7D'
+COOKIE = 'user_trace_token=20200225101518-22575ce0-8112-46ac-a704-038b9b96b89d; _ga=GA1.2.2069224394.1582596922; LGUID=20200225101519-20460062-7ff1-4746-9fff-ea885836dcec; LG_HAS_LOGIN=1; index_location_city=%E6%9D%AD%E5%B7%9E; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1590298113,1590823497,1590912149,1592307083; LG_LOGIN_USER_ID=bf2b02414504f9afa421d551576075debea8588b70b36529; privacyPolicyPopup=false; PRE_UTM=; PRE_HOST=; PRE_LAND=https%3A%2F%2Fwww.lagou.com%2F; LGSID=20200715204226-ad5a1e06-1bc1-4aa9-a2b1-7313e197ea51; PRE_SITE=https%3A%2F%2Fwww.lagou.com; _putrc=FC755B67B4B1175F; login=true; unick=%E6%96%BD%E7%81%B5%E9%BE%99; sensorsdata2015session=%7B%7D; kw_login_authToken="S7FgbVTcl6v1scZ7nSKYsJ0Nf/nAKtZQMgxkoYDoTZ8EMU8rKFtm/TTpvGa97uOpkI6lHoWQp2muBHwooP2xa7HcnSk20fHWkYsPIJkmXwtc4/nnuX3LOhbPmYWpFCXmTAm0WNId5yBmbLGX+6tlSJmd1dc4mLFc10NCPHN386V4rucJXOpldXhUiavxhcCELWDotJ+bmNVwmAvQCptcy5e7czUcjiQC32Lco44BMYXrQ+AIOfEccJKHpj0vJ+ngq/27aqj1hWq8tEPFFjdnxMSfKgAnjbIEAX3F9CIW8BSiMHYmPBt7FDDY0CCVFICHr2dp5gQVGvhfbqg7VzvNsw=="; gate_login_token=ca5ca6a779a8eae4897e3be8c3491f628a6cc347b9e0384d; X_HTTP_TOKEN=7853a618605f1cdb50071849519344137bb1244aa1; LGRID=20200715204326-ddf7e74a-e036-4625-b4dd-d3d4f9e393ac; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%228686565%22%2C%22%24device_id%22%3A%2216ddf03ac49303-0b8a475ad2b891-36664c08-2073600-16ddf03ac4a4ce%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_referrer%22%3A%22%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24os%22%3A%22Windows%22%2C%22%24browser%22%3A%22Chrome%22%2C%22%24browser_version%22%3A%2278.0.3904.108%22%7D%2C%22first_id%22%3A%22173527fb7d359f-03812c6eba435-376b4502-2073600-173527fb7d4b57%22%7D'
 
 
 def md5(str1):
@@ -114,6 +115,11 @@ class M3u8:
         os.system('rd /s/q ' + self.tmp)  # 这里如果试Linux 把rm -tf改成rm -rf
 
     def download(self, file_name):
+        print
+        if os.path.exists(file_name + ".mp4"):
+            print(file_name, "已存在")
+            return
+
         self.download_ts()
         self.merge(file_name)
 
