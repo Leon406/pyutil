@@ -3,6 +3,8 @@ import os
 from pip._internal.utils.misc import get_installed_distributions
 from subprocess import call
 
+# requestments.txt  pipreqs --debug  --pypi-server http://pypi.douban.com/simple ./ --encoding=utf-8
+
 
 def pip_source():
     os_type = platform.system()

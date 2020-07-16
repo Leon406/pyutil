@@ -2,6 +2,7 @@ import re
 import requests
 import json
 from M3u8 import M3u8
+from net import Net
 import time
 
 res = requests.session()
