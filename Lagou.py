@@ -1,9 +1,10 @@
-import re
-import requests
 import json
-from M3u8 import M3u8
-from net import Net
+import re
 import time
+
+import requests
+
+from M3u8 import M3u8
 
 res = requests.session()
 
@@ -42,25 +43,24 @@ course = "https://gate.lagou.com/v1/neirong/kaiwu/getCourseLessons?courseId=%s"
 
 def get_course(file=r"E:\file\pyutil\c.json"):
     with open(file, 'r', encoding="utf-8") as f:
-        maps = {}
+        mps = {}
         s1 = json.load(f)
         print(s1['content']['courseSectionList'])
 
         for item in s1['content']['courseSectionList']:
             # print(item['courseLessons'])
-            for course in item['courseLessons']:
-                if (course["videoMediaDTO"]):
-                    print(course["theme"], course["videoMediaDTO"]["fileUrl"])
-                    maps[course["theme"]] = course["videoMediaDTO"]["fileUrl"]
+            for c in item['courseLessons']:
+                if c["videoMediaDTO"]:
+                    print(c["theme"], c["videoMediaDTO"]["fileUrl"])
+                    mps[c["theme"]] = c["videoMediaDTO"]["fileUrl"]
                 else:
-                    print(course["theme"], "未更新")
-        return maps
+                    print(c["theme"], "未更新")
+        return mps
 
 
 if __name__ == '__main__':
     start = time.time()  # 开始时间
     url = 'https://kaiwu.lagou.com/course/courseInfo.htm?courseId=67#/detail/pc?id=1585'
-
 
     maps = get_course()
     print(maps)

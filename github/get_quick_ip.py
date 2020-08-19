@@ -89,37 +89,42 @@ def getIpFromipapi(site):
 
 # 需要获取ip的网址
 sites = [
-    "github.global.ssl.fastly.net",
-    "assets-cdn.github.com",
-    "documentcloud.github.com",
-    "gist.github.com",
-    "gist.githubusercontent.com",
-    "github.githubassets.com",  # 很卡
-    "help.github.com",
-    "nodeload.github.com",
-    "raw.github.com",
-    "status.github.com",
-    "training.github.com",
-    "avatars0.githubusercontent.com",
-    "avatars1.githubusercontent.com",
-    "avatars2.githubusercontent.com",
-    "avatars3.githubusercontent.com",
-    "avatars4.githubusercontent.com",
-    "avatars5.githubusercontent.com",
-    "avatars6.githubusercontent.com",
-    "avatars7.githubusercontent.com",
-    "avatars8.githubusercontent.com",
-    "codeload.github.com",
-    "camo.githubusercontent.com",
-    "raw.githubusercontent.com",
-    "cloud.githubusercontent.com",
-    "user-images.githubusercontent.com",
-    "customer-stories-feed.github.com",
-    "pages.github.com",
-    "api.github.com",
-    "live.github.com",
-    "githubapp.com",
-    "github.com"
+    'assets-cdn.github.com',
+    'avatars0.githubusercontent.com',
+    'avatars1.githubusercontent.com',
+    'avatars2.githubusercontent.com',
+    'avatars3.githubusercontent.com',
+    'avatars4.githubusercontent.com',
+    'avatars5.githubusercontent.com',
+    'avatars6.githubusercontent.com',
+    'avatars7.githubusercontent.com',
+    'avatars8.githubusercontent.com',
+    'api.github.com',
+    'codeload.github.com',
+    'camo.githubusercontent.com',
+    'cloud.githubusercontent.com',
+    'customer-stories-feed.github.com',
+    'documentcloud.github.com',
+    'github.global.ssl.fastly.net',
+    'gist.github.com',
+    'gist.githubusercontent.com',
+    'github.githubassets.com',
+    'githubapp.com',
+    'github.com',
+    'github-production-release-asset-2e65be.s3.amazonaws.com',
+    'github-production-user-asset-6210df.s3.amazonaws.com',
+    'github-cloud.s3.amazonaws.com',
+    'github-production-repository-file-5c1aeb.s3.amazonaws.com',
+    'github-com.s3.amazonaws.com',
+    'help.github.com',
+    'live.github.com',
+    'nodeload.github.com',
+    'pages.github.com',
+    'raw.github.com',
+    'raw.githubusercontent.com',
+    'status.github.com',
+    'training.github.com',
+    'user-images.githubusercontent.com'
 ]
 
 addr2ip = {}
@@ -140,6 +145,7 @@ def dropDuplication(line):
 
 # 更新host, 并刷新本地DNS
 def updateHost():
+    print(sorted(sites, key=lambda i: i[0]))
     today = datetime.date.today()
     for site in sites:
         trueip = getIpFromipapi(site)
