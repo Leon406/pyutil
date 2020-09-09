@@ -148,7 +148,7 @@ def updateHost():
     print(sorted(sites, key=lambda i: i[0]))
     today = datetime.date.today()
     for site in sites:
-        trueip = getIpFromipapi(site)
+        trueip = getIpFromChinaz(site)
         if trueip is not None:
             addr2ip[site] = trueip
             print(site + "\t" + trueip)
