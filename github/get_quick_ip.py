@@ -9,12 +9,12 @@ from bs4 import BeautifulSoup
 
 def getIpFromIpaddress(site):
     headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebkit/737.36(KHTML, like Gecke) Chrome/52.0.2743.82 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
         'Host': 'ipaddress.com'}
     url = "https://ipaddress.com/search/" + site
     trueip = None
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(url, headers=headers,timeout=10)
         soup = BeautifulSoup(res.text, 'html.parser')
         ip = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", res.text)
         result = soup.find_all('div', class_="comma-separated")
@@ -28,7 +28,7 @@ def getIpFromIpaddress(site):
 
 def getIpFromChinaz(site):
     headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebkit/737.36(KHTML, like Gecke) Chrome/52.0.2743.82 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
         'Host': 'ip.tool.chinaz.com'}
     url = "http://ip.tool.chinaz.com/" + site
     trueip = None
@@ -45,40 +45,17 @@ def getIpFromChinaz(site):
     return trueip
 
 
-def getIpFromWhatismyipaddress(site):
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebkit/737.36(KHTML, like Gecke) Chrome/52.0.2743.82 Safari/537.36',
-        'Host': 'ip.tool.chinaz.com'}
-    url = "https://whatismyipaddress.com/hostname-ip"
-    data = {
-        "DOMAINNAME": site,
-        "Lookup IP Address": "Lookup IP Address"
-    }
-    trueip = None
-    try:
-        res = requests.post(url, headers=headers, data=data, timeout=5)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        result = soup.find_all('span', class_="Whwtdhalf w15-0")
-        for c in result:
-            ip = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", c.text)
-            if len(ip) != 0:
-                trueip = ip[0]
-    except Exception as e:
-        print("查询" + site + " 时出现错误: " + str(e))
-    return trueip
-
-
 def getIpFromipapi(site):
     """
     return trueip: None or ip
     """
     headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebkit/737.36(KHTML, like Gecke) Chrome/52.0.2743.82 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
         'Host': 'ip-api.com'}
     url = "http://ip-api.com/json/%s?lang=zh-CN" % site
     trueip = None
     try:
-        res = requests.get(url, headers=headers, timeout=5)
+        res = requests.get(url, headers=headers, timeout=8, verify=False)
         res = json.loads(res.text)
         if res["status"] == "success":
             trueip = res["query"]
@@ -89,19 +66,19 @@ def getIpFromipapi(site):
 
 # 需要获取ip的网址
 sites = [
-    'assets-cdn.github.com',
     'avatars0.githubusercontent.com',
-    'api.github.com',
     'codeload.github.com',
     'documentcloud.github.com',
+    'github-cloud.s3.amazonaws.com',
+    'github-com.s3.amazonaws.com',
+    'github.githubassets.com',
     'github.global.ssl.fastly.net',
     'gist.github.com',
-    'github.githubassets.com',
+    'assets-cdn.github.com',
+    'api.github.com',
     'githubapp.com',
     'github.com',
     'github-production-release-asset-2e65be.s3.amazonaws.com',
-    'github-cloud.s3.amazonaws.com',
-    'github-com.s3.amazonaws.com',
     'live.github.com',
     'pages.github.com',
     'status.github.com',
@@ -128,7 +105,7 @@ gp = {
                                        'cloud.githubusercontent.com',
 
                                        ],
-    # amazonaws relese download
+
     "github-cloud.s3.amazonaws.com": ['github-cloud.s3.amazonaws.com',
                                       'github-production-user-asset-6210df.s3.amazonaws.com',
                                       ],
@@ -177,7 +154,7 @@ def updateHost():
             if site in gp and gp[site]:
                 for gsite in gp[site]:
                     addr2ip[gsite] = trueip
-                    print(gsite + "dd\t" + trueip)
+                    print(gsite + " group \t" + trueip)
             else:
                 addr2ip[site] = trueip
                 print(site + "\t" + trueip)
