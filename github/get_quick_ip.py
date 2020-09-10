@@ -91,41 +91,61 @@ def getIpFromipapi(site):
 sites = [
     'assets-cdn.github.com',
     'avatars0.githubusercontent.com',
-    'avatars1.githubusercontent.com',
-    'avatars2.githubusercontent.com',
-    'avatars3.githubusercontent.com',
-    'avatars4.githubusercontent.com',
-    'avatars5.githubusercontent.com',
-    'avatars6.githubusercontent.com',
-    'avatars7.githubusercontent.com',
-    'avatars8.githubusercontent.com',
     'api.github.com',
     'codeload.github.com',
-    'camo.githubusercontent.com',
-    'cloud.githubusercontent.com',
-    'customer-stories-feed.github.com',
     'documentcloud.github.com',
     'github.global.ssl.fastly.net',
     'gist.github.com',
-    'gist.githubusercontent.com',
     'github.githubassets.com',
     'githubapp.com',
     'github.com',
     'github-production-release-asset-2e65be.s3.amazonaws.com',
-    'github-production-user-asset-6210df.s3.amazonaws.com',
     'github-cloud.s3.amazonaws.com',
-    'github-production-repository-file-5c1aeb.s3.amazonaws.com',
     'github-com.s3.amazonaws.com',
-    'help.github.com',
     'live.github.com',
-    'nodeload.github.com',
     'pages.github.com',
-    'raw.github.com',
-    'raw.githubusercontent.com',
     'status.github.com',
     'training.github.com',
-    'user-images.githubusercontent.com'
 ]
+
+# 相同ip映射表,减少网络请求数量
+gp = {
+    # githubusercontent
+    "avatars0.githubusercontent.com": ['avatars0.githubusercontent.com',
+                                       'avatars1.githubusercontent.com',
+                                       'avatars2.githubusercontent.com',
+                                       'avatars3.githubusercontent.com',
+                                       'avatars4.githubusercontent.com',
+                                       'avatars5.githubusercontent.com',
+                                       'avatars6.githubusercontent.com',
+                                       'avatars7.githubusercontent.com',
+                                       'avatars8.githubusercontent.com',
+                                       'camo.githubusercontent.com',
+                                       'user-images.githubusercontent.com',
+                                       'gist.githubusercontent.com',
+                                       'raw.github.com',
+                                       'raw.githubusercontent.com',
+                                       'cloud.githubusercontent.com',
+
+                                       ],
+    # amazonaws relese download
+    "github-cloud.s3.amazonaws.com": ['github-cloud.s3.amazonaws.com',
+                                      'github-production-user-asset-6210df.s3.amazonaws.com',
+                                      ],
+    "github-com.s3.amazonaws.com": ['github-com.s3.amazonaws.com',
+                                    'github-production-repository-file-5c1aeb.s3.amazonaws.com',
+                                    ],
+    "codeload.github.com": ['codeload.github.com',
+                            'nodeload.github.com',
+                            ],
+    "github.githubassets.com": ['github.githubassets.com',
+                                'help.github.com',
+                                ],
+    "documentcloud.github.com": ['documentcloud.github.com',
+                                 'customer-stories-feed.github.com',
+                                 ],
+
+}
 
 addr2ip = {}
 hostLocation = r"hosts"
@@ -136,10 +156,14 @@ def dropDuplication(line):
     if "#*********************github" in line:
         return True
     for site in sites:
-        if site in line:
-            flag = flag or True
+        if site in gp and gp[site]:
+            for gsite in gp[site]:
+                if gsite in line:
+                    flag = flag or True
+                else:
+                    flag = flag or False
         else:
-            flag = flag or False
+            flag = flag or site in line
     return flag
 
 
@@ -149,17 +173,24 @@ def updateHost():
     today = datetime.date.today()
     for site in sites:
         trueip = getIpFromChinaz(site)
-        if trueip is not None:
-            addr2ip[site] = trueip
-            print(site + "\t" + trueip)
+        if trueip:
+            if site in gp and gp[site]:
+                for gsite in gp[site]:
+                    addr2ip[gsite] = trueip
+                    print(gsite + "dd\t" + trueip)
+            else:
+                addr2ip[site] = trueip
+                print(site + "\t" + trueip)
+
     with open(hostLocation, "r") as f1:
         f1_lines = f1.readlines()
         with open("temphost", "w") as f2:
+            f2.write("#*********************github " +
+                     str(today) + " update********************\n")
             for line in f1_lines:  # 为了防止 host 越写用越长，需要删除之前更新的含有github相关内容
                 if not dropDuplication(line):
                     f2.write(line)
-            f2.write("#*********************github " +
-                     str(today) + " update********************\n")
+
             for key in addr2ip:
                 f2.write(addr2ip[key] + "\t" + key + "\n")
     os.remove(hostLocation)
