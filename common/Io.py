@@ -1,4 +1,4 @@
-import grequests
+# import grequests
 import time
 import json
 
@@ -45,14 +45,14 @@ def write(path, text):
 if __name__ == "__main__":
     print(str(read("Io.py")))
     start = time.time()
-    tasks = [
-        grequests.get("http://baidu.com",
-                      timeout=5) for d in range(1, 100)]
-    print(tasks)
-    res = grequests.map(tasks)
-    for i, r in enumerate(res):
-        if r:
-            if r.status_code == 200:
-                print(r.text)
+    # tasks = [
+    #     grequests.get("http://baidu.com",
+    #                   timeout=5) for d in range(1, 100)]
+    # print(tasks)
+    # res = grequests.map(tasks)
+    # for i, r in enumerate(res):
+    #     if r:
+    #         if r.status_code == 200:
+    #             print(r.text)
 
     print(time.time() - start)
