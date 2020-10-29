@@ -1,4 +1,3 @@
-grequests==0.6.0
 requests==2.24.0
 pycryptodome
 bs4

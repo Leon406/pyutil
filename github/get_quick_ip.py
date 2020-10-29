@@ -149,7 +149,7 @@ def updateHost():
     print(sorted(sites, key=lambda i: i[0]))
     today = datetime.date.today()
     for site in sites:
-        trueip = getIpFromChinaz(site)
+        trueip = getIpFromipapi(site)
         if trueip:
             if site in gp and gp[site]:
                 for gsite in gp[site]:
