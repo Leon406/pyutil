@@ -15,15 +15,10 @@ def read_lines(path):
 # 读取文档
 def read(path):
     with open(path, 'r', encoding="UTF-8") as f:
-        return f.readlines()  # 读取文档
-
-
-def read(path):
-    with open(path, 'r', encoding="UTF-8") as f:
         return f.readlines()
 
 
-# 读取文档
+# 读取json
 def read_json(path):
     with open(path, 'r', encoding="UTF-8") as f:
         return json.load(f)
