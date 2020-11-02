@@ -4,11 +4,14 @@ import requests
 from common import Hash
 from M3u8 import M3u8
 import time
+import re
 
-HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=10416ac1c48422125c54b39c0462929a'}
+# HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=10416ac1c48422125c54b39c0462929a'}
+# TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
+HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=92eb114a76a742a4060cfa1f23a86555'}
+TERM_ID = 'term_5f26a080ecaab_WTVcFW'
+
 URL = 'https://appoxpkjya89223.h5.xiaoeknow.com'
-TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
-
 CATALOGUE_URL = URL + "/camp/get_term_catalogue"
 SECTION_URL = URL + "/camp/get_task_list"
 VIDEO_URL = URL + "/video/base_info"
@@ -16,6 +19,7 @@ EXAM_URL = URL + "/evaluation_wechat/exam/get_exam_info"
 EXAM_REVIEW_URL = URL + "/exam/review_detail"
 
 choices = 'ABCD'
+weight = 62
 
 
 class XiaoeTong:
@@ -34,12 +38,16 @@ class XiaoeTong:
         self.catalog = json.loads(rsp.text)['data']['catalogue']
         self.appId = self.catalog[0]['app_id']
 
-        for course in self.catalog:
-            print(course['title'], course['id'], course['unlock_time'])
+        # for course in self.catalog:
+        #     print(course['title'], course['id'], course['unlock_time'])
 
     def section_test(self):
         for course in self.catalog:
             # print(course['title'], course['id'])
+            # print(course)
+            if course['order_weight'] < weight:
+                continue
+
             self.learn_days[course['id']] = course['unlock_time']
             self.section_info(course['id'])
 
@@ -49,11 +57,12 @@ class XiaoeTong:
 
         tasks = json.loads(rsp.text)['data']['taskList']
         for task in tasks:
-            print(task['title'], task['id'], task['resource_type'], task['task_progress'])
+            # print(task['title'], task['id'], task['resource_type'], task['task_progress'])
             # if task['id'].startswith('v_'):
             #     self.video_info(task['id'], sec_id)
             if task['id'].startswith('ex_'):
                 self.exam_info(task['id'], sec_id)
+            pass
 
     def course_info(self):
         pass
@@ -74,19 +83,22 @@ class XiaoeTong:
             exam_answer = json.loads(rsp.text)['data']['result']
             # print(exam_answer)
             for i, item in enumerate(exam_answer):
-                print(f"第{i + 1}题:" + item['content'].replace('<p>', '').replace('</p>', ''))
+
+                if 'option' not in item or item['option'] == '':
+                    print(f"章节作业:" + re.sub('<[^>]+>', '', item['content']))
+                    return
+                print(f"第{i + 1}题:" + re.sub('<[^>]+>', '', item['content']))
                 maps = {}
                 for j, option in enumerate(item['option']):
-                    print('\t' + choices[j] + ". " + option['content'].replace('<p>', '').replace('</p>', ''))
+                    print('\t' + choices[j] + ". " + re.sub('<[^>]+>|&\\w+;', '', option['content']))
                     maps[option['id']] = choices[j]
                     pass
                 ans = []
                 for answer in item['correct_answer']:
                     ans.append(maps[answer])
-                    pass
 
                 print("答案: " + "".join(ans))
-                print("解析: " + item['analysis'] + '\r\n')
+                print("解析: " + re.sub('<[^>]+>|&\\w+;', '', item['analysis']) + '\r\n')
 
     @staticmethod
     def decode_video_url(url):
