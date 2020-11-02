@@ -84,21 +84,21 @@ class M3u8:
                 elif 'ad0.ts' not in list_content[index + 1]:
                     href = self.base_url + list_content[index + 1]
                     player_list.append(href)
-        # if len(key):
-        #     print('此视频经过加密')
-        #     print(player_list)  # 打印ts地址列表
-        #
-        #     tasks = [self.executor.submit(self._download2_, tsUrl, key, i) for i, tsUrl in enumerate(player_list)]
-        #     wait(tasks, return_when=ALL_COMPLETED)
-        #
-        #     print('下载完成')
-        #
-        # else:
-        #     print('此视频未加密')
-        #     print(player_list)  # 打印ts地址列表
-        #     tasks = [self.executor.submit(self._download_, tsUrl, i) for i, tsUrl in enumerate(player_list)]
-        #     wait(tasks, return_when=ALL_COMPLETED)
-        #     print('下载完成')
+        if len(key):
+            print('此视频经过加密')
+            print(player_list)  # 打印ts地址列表
+
+            tasks = [self.executor.submit(self._download2_, tsUrl, key, i) for i, tsUrl in enumerate(player_list)]
+            wait(tasks, return_when=ALL_COMPLETED)
+
+            print('下载完成')
+
+        else:
+            print('此视频未加密')
+            print(player_list)  # 打印ts地址列表
+            tasks = [self.executor.submit(self._download_, tsUrl, i) for i, tsUrl in enumerate(player_list)]
+            wait(tasks, return_when=ALL_COMPLETED)
+            print('下载完成')
 
     def _download_(self, tsUrl, index):
         res = requests.get(tsUrl, headers=self.headers)
@@ -127,9 +127,9 @@ class M3u8:
         os.system('rd /s/q ' + self.tmp)  # 这里如果试Linux 把rm -tf改成rm -rf
 
     def download(self, file_name):
-        # if os.path.exists(file_name + ".mp4"):
-        #     print(file_name, "已存在")
-        #     return
+        if os.path.exists(file_name + ".mp4"):
+            print(file_name, "已存在")
+            return
 
         self.download_ts()
         self.merge(file_name)
@@ -138,6 +138,7 @@ class M3u8:
 if __name__ == '__main__':
     url = 'https://vod.lagou.com/b595ca64be404e02aa83afcefa3ce342/81f06756dbbbf061cf46bf087044e1f5-hd-encrypt-stream.m3u8'
     url = 'https://vod.lagou.com/55d71556af874cb1a5450eeb309110da/34e1e259a2155b1daea5905b49bd122f-sd-encrypt-stream.m3u8'
+    url = 'http://1252524126.vod2.myqcloud.com/9764a7a5vodtransgzp1252524126/ac73ead85285890784840587173/drm/voddrm.token.YTY3YzNkZjgwNjhmNTQ2Y3c2YXg1TTF3U0h4WkRZRzc3ekxkNllGYlBiQjdiZFFBM0xlM2VyY1VYWncxSWJmSA.v.f230.m3u8'
     # url = 'https://hls.videocc.net/d1977c4d68/2/d1977c4d684446cbb2d691241d558922_3.m3u8?pid=1594373110556X1019390&device=desktop'
     start = time.time()  # 开始时间
     d = M3u8(url)
