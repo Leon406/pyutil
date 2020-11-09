@@ -6,10 +6,11 @@ from M3u8 import M3u8
 import time
 import re
 
-# HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=10416ac1c48422125c54b39c0462929a'}
-# TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
-HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=92eb114a76a742a4060cfa1f23a86555'}
-TERM_ID = 'term_5f26a080ecaab_WTVcFW'
+HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=10416ac1c48422125c54b39c0462929a'}
+HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=98ed7e4b9cf850d203ac7f0d152eea95'}
+TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
+# HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=92eb114a76a742a4060cfa1f23a86555'}
+# TERM_ID = 'term_5f26a080ecaab_WTVcFW'
 
 URL = 'https://appoxpkjya89223.h5.xiaoeknow.com'
 CATALOGUE_URL = URL + "/camp/get_term_catalogue"
@@ -19,7 +20,7 @@ EXAM_URL = URL + "/evaluation_wechat/exam/get_exam_info"
 EXAM_REVIEW_URL = URL + "/exam/review_detail"
 
 choices = 'ABCD'
-weight = 62
+weight = 7
 
 
 class XiaoeTong:
@@ -35,6 +36,7 @@ class XiaoeTong:
 
     def catalogue(self):
         rsp = self.session.post(CATALOGUE_URL, data={'bizData[termId]': TERM_ID}, headers=HEADER)
+        print (rsp.text)
         self.catalog = json.loads(rsp.text)['data']['catalogue']
         self.appId = self.catalog[0]['app_id']
 
@@ -57,7 +59,7 @@ class XiaoeTong:
 
         tasks = json.loads(rsp.text)['data']['taskList']
         for task in tasks:
-            # print(task['title'], task['id'], task['resource_type'], task['task_progress'])
+            print(task['title'], task['id'], task['resource_type'], task['task_progress'])
             # if task['id'].startswith('v_'):
             #     self.video_info(task['id'], sec_id)
             if task['id'].startswith('ex_'):
@@ -80,7 +82,10 @@ class XiaoeTong:
         if join_id:
             rsp = self.session.post(EXAM_REVIEW_URL, data={"bizData[exam_id]": id, "bizData[participate_id]": join_id},
                                     headers=HEADER)
-            exam_answer = json.loads(rsp.text)['data']['result']
+            data_ = json.loads(rsp.text)['data']
+            if 'result' not in data_:
+                return
+            exam_answer = data_['result']
             # print(exam_answer)
             for i, item in enumerate(exam_answer):
 
