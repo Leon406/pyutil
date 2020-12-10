@@ -21,6 +21,9 @@ if __name__ == "__main__":
     for i in r:
         print(i.url + i.text)
 
+
+    #单线程
+
     # for l in read_lines("code.txt"):
     #
     #     print("%s" % l)
