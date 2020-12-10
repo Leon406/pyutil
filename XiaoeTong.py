@@ -8,8 +8,8 @@ import re
 
 # HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=10416ac1c48422125c54b39c0462929a'}
 # TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
-HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=92eb114a76a742a4060cfa1f23a86555'}
-TERM_ID = 'term_5f26a080ecaab_WTVcFW'
+HEADER = {'Cookie': 'ko_token=31b2886557d0ddf31b08b40f88832a79; dataUpJssdkCookie={"wxver":"","net":"","sid":""}'}
+TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
 
 URL = 'https://appoxpkjya89223.h5.xiaoeknow.com'
 CATALOGUE_URL = URL + "/camp/get_term_catalogue"
@@ -19,7 +19,7 @@ EXAM_URL = URL + "/evaluation_wechat/exam/get_exam_info"
 EXAM_REVIEW_URL = URL + "/exam/review_detail"
 
 choices = 'ABCD'
-weight = 62
+weight = 13
 
 
 class XiaoeTong:
@@ -57,7 +57,7 @@ class XiaoeTong:
 
         tasks = json.loads(rsp.text)['data']['taskList']
         for task in tasks:
-            # print(task['title'], task['id'], task['resource_type'], task['task_progress'])
+            print(task['title'], task['id'], task['resource_type'], task['task_progress'])
             # if task['id'].startswith('v_'):
             #     self.video_info(task['id'], sec_id)
             if task['id'].startswith('ex_'):

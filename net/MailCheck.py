@@ -8,7 +8,7 @@ reobj = re.compile(r"^(?P<no>\d+)\s+(?P<name>.+?)\s+.*\d{12}(?P<pwd>\d{5}[0-9X])
 isResume = True
 if __name__ == "__main__":
 
-    for l in read_lines("mails.txt"):
+    for i, l in enumerate(read_lines("mails.txt")):
         match = reobj.match(l)
         if not match:
             continue
@@ -16,13 +16,13 @@ if __name__ == "__main__":
         name = match.groupdict()["name"]
         pwd = match.groupdict()["pwd"]
 
-        print("%s %s %s" % (no, name, pwd))
-        if no == "16121174":
+
+        if no == "16120300":
             isResume = True
 
         if not isResume:
             continue
-
+        print("第%s个:  %s %s %s" % (i, no, name, pwd))
         r = requests.post(API, data={"uid": no, "password": pwd, "action:login": ""}, headers=head)
         # print(r.text)
         if "每次都要更新token 的有效时长" in r.text:
