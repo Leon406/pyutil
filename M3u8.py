@@ -12,6 +12,9 @@ from Crypto.Cipher import AES
 COOKIE = 'user_trace_token=20201008114240-e5eb483e-259c-471f-98d0-972759067854; LGUID=20201008114240-8ab68cbf-5ce1-474a-8fe5-6db15997e83b; _ga=GA1.2.1060024075.1602128562; LG_LOGIN_USER_ID=93d8bc8949775963477a4b5279adc64a00917ba8876659b7; LG_HAS_LOGIN=1; _putrc=FC755B67B4B1175F; login=true; unick=%E6%96%BD%E7%81%B5%E9%BE%99; privacyPolicyPopup=false; index_location_city=%E6%9D%AD%E5%B7%9E; gate_login_token=c08d65506a14efd8336554e28bc61dd7e715a6753c1b5536; PRE_UTM=; PRE_HOST=; PRE_LAND=https%3A%2F%2Fwww.lagou.com%2F; LGSID=20201008123152-3aed06a2-a093-4ae9-bb21-e3194cca62f5; PRE_SITE=https%3A%2F%2Fwww.lagou.com; LGRID=20201008123152-9693a202-1e27-49dc-a46b-1233f745f413; _gat=1; X_HTTP_TOKEN=f9cc62e35a90c00671513120613d0475f7ed28a585'
 PATTERN = re.compile("MEA?THOD=(?P<method>.+),URI=\"(?P<uri>.+)\"(,IV=(?P<iv>.+))?")
 
+POLYV = 'hls.videocc.net'
+POLYV_SAFE = '0b888fc8-dbed-4957-b143-ab5b4642df50-t8nl45lc755k10'
+
 
 def md5(str1):
     h1 = hashlib.md5()
@@ -64,8 +67,14 @@ class M3u8:
                         key = self.keys[key_url]
                         print("key from cache")
                     else:
+                        if POLYV in key_url:
+                            key_url = '%s?token=%s' % (
+                            key_url.replace('hls.videocc.net/', 'hls.videocc.net/playsafe/'), POLYV_SAFE)
+                            print("polyV url " + key_url)
                         res = requests.get(key_url, headers=self.headers)
                         key = res.content  # 获取加密密钥
+                        with open('m.key', "wb") as f:
+                            f.write(key)
                         print(res.text)
                         if key:
                             self.keys[key_url] = key
@@ -138,8 +147,10 @@ class M3u8:
 if __name__ == '__main__':
     url = 'https://vod.lagou.com/b595ca64be404e02aa83afcefa3ce342/81f06756dbbbf061cf46bf087044e1f5-hd-encrypt-stream.m3u8'
     url = 'https://vod.lagou.com/55d71556af874cb1a5450eeb309110da/34e1e259a2155b1daea5905b49bd122f-sd-encrypt-stream.m3u8'
-    url = 'http://1252524126.vod2.myqcloud.com/9764a7a5vodtransgzp1252524126/ac73ead85285890784840587173/drm/voddrm.token.YTY3YzNkZjgwNjhmNTQ2Y3c2YXg1TTF3U0h4WkRZRzc3ekxkNllGYlBiQjdiZFFBM0xlM2VyY1VYWncxSWJmSA.v.f230.m3u8'
-    # url = 'https://hls.videocc.net/d1977c4d68/2/d1977c4d684446cbb2d691241d558922_3.m3u8?pid=1594373110556X1019390&device=desktop'
+    url = 'https://1252524126.vod2.myqcloud.com/9764a7a5vodtransgzp1252524126/47fccaa55285890784299740979/drm/v.f230.m3u8'
+    url = 'https://hls.videocc.net/d06ae002cb/2/d06ae002cb4a0bed78fb912c874fdbb2_2.m3u8?pid=1604812797069X1989802&device=desktop'
+    url = 'http://1252524126.vod2.myqcloud.com/9764a7a5vodtransgzp1252524126/e3def9065285890783868358884/drm/v.f230.m3u8'
+
     start = time.time()  # 开始时间
     d = M3u8(url)
     d.download("课程")
