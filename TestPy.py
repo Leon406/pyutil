@@ -1,7 +1,9 @@
-from common import Hash
-import re
-from Crypto.Cipher import AES
 import base64
+import re
+
+from Crypto.Cipher import AES
+
+from common import Hash
 
 patter = re.compile("METHOD=(?P<method>.+),URI=\"(?P<uri>.+)\"(,IV=(?P<iv>.+))?")
 if __name__ == "__main__":
@@ -21,7 +23,7 @@ if __name__ == "__main__":
     crypto = AES.new(key, AES.MODE_CBC, iv)
     # print(crypto.decrypt(d))
     s = pad(s)
-    print(  base64.b64encode(crypto.encrypt(s.encode())))
+    print(base64.b64encode(crypto.encrypt(s.encode())))
     crypto2 = AES.new(key, AES.MODE_CBC, iv)
     str()
     print(crypto2.decrypt(base64.decodebytes(b'vkYbld7ogr5nNi/bRp6XMA==')))

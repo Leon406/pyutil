@@ -1,10 +1,11 @@
 import json
+import re
+import time
 
 import requests
-from common import Hash
+
 from M3u8 import M3u8
-import time
-import re
+from common import Hash
 
 HEADER = {'Cookie': 'ko_token=8c724786316899c0ea0a441ec549d647; '}
 TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'

@@ -1,7 +1,9 @@
-import platform
 import os
-from pip._internal.utils.misc import get_installed_distributions
+import platform
 from subprocess import call
+
+from pip._internal.utils.misc import get_installed_distributions
+
 
 # requestments.txt  pipreqs --debug  --pypi-server http://pypi.douban.com/simple ./ --encoding=utf-8
 

@@ -1,6 +1,8 @@
-import requests
-from common.Io import read_lines, write
 import re
+
+import requests
+
+from common.Io import read_lines, write
 
 API = "https://mail.bjtu.edu.cn/coremail/xphone/index.jsp"
 head = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
