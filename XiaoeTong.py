@@ -7,20 +7,21 @@ import requests
 from M3u8 import M3u8
 from common import Hash
 
-HEADER = {'Cookie': 'ko_token=8c724786316899c0ea0a441ec549d647; '}
-TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
+HEADER = {'Cookie': 'ko_token=d2f2693901d65e135f593bcd9fba18db;'}
+# TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
 # HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=92eb114a76a742a4060cfa1f23a86555'}
-# TERM_ID = 'term_5f26a080ecaab_WTVcFW'
+TERM_ID = 'term_5f26a080ecaab_WTVcFW'
 
 URL = 'https://appoxpkjya89223.h5.xiaoeknow.com'
 CATALOGUE_URL = URL + "/camp/get_term_catalogue"
 SECTION_URL = URL + "/camp/get_task_list"
 VIDEO_URL = URL + "/video/base_info"
 EXAM_URL = URL + "/evaluation_wechat/exam/get_exam_info"
+EXAM_JOIN_URL = URL + "/evaluation_wechat/exam/join_exam"
 EXAM_REVIEW_URL = URL + "/exam/review_detail"
 
 choices = 'ABCD'
-weight = 18
+weight = 63
 
 
 class XiaoeTong:
@@ -36,7 +37,7 @@ class XiaoeTong:
 
     def catalogue(self):
         rsp = self.session.post(CATALOGUE_URL, data={'bizData[termId]': TERM_ID}, headers=HEADER)
-        print (rsp.text)
+        print(rsp.text)
         self.catalog = json.loads(rsp.text)['data']['catalogue']
         self.appId = self.catalog[0]['app_id']
 
@@ -59,11 +60,11 @@ class XiaoeTong:
 
         tasks = json.loads(rsp.text)['data']['taskList']
         for task in tasks:
-            print(task['title'], task['id'], task['resource_type'], task['task_progress'])
+            # print(task['title'], task['id'], task['resource_type'], task['task_progress'])
             # if task['id'].startswith('v_'):
             #     self.video_info(task['id'], sec_id)
-            # if task['id'].startswith('ex_'):
-            #     self.exam_info(task['id'], sec_id)
+            if task['id'].startswith('ex_'):
+                self.exam_info(task['id'], sec_id)
             # pass
 
     def course_info(self):
@@ -72,6 +73,7 @@ class XiaoeTong:
     def exam_info(self, id, sec_id):
         rsp = self.session.post(EXAM_URL, data={"bizData[exam_id]": id, "bizData[data_point_type]": "6"},
                                 headers=HEADER)
+
         # print(rsp.text)
         exam = json.loads(rsp.text)['data']
 
@@ -86,7 +88,7 @@ class XiaoeTong:
             if 'result' not in data_:
                 return
             exam_answer = data_['result']
-            # print(exam_answer)
+            print(exam_answer)
             for i, item in enumerate(exam_answer):
 
                 if 'option' not in item or item['option'] == '':
@@ -104,6 +106,10 @@ class XiaoeTong:
 
                 print("答案: " + "".join(ans))
                 print("解析: " + re.sub('<[^>]+>|&\\w+;', '', item['analysis']) + '\r\n')
+        # else:
+        #     rsp = self.session.post(EXAM_JOIN_URL, data={"bizData[exam_id]": id, "bizData[come_type]": "1"},
+        #                             headers=HEADER)
+        #     print(rsp.text)
 
     @staticmethod
     def decode_video_url(url):
