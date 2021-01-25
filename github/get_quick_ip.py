@@ -97,6 +97,7 @@ gp = {
                                        'avatars6.githubusercontent.com',
                                        'avatars7.githubusercontent.com',
                                        'avatars8.githubusercontent.com',
+                                       'avatars.githubusercontent.com',
                                        'camo.githubusercontent.com',
                                        'user-images.githubusercontent.com',
                                        'gist.githubusercontent.com',
