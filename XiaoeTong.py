@@ -21,7 +21,7 @@ EXAM_JOIN_URL = URL + "/evaluation_wechat/exam/join_exam"
 EXAM_REVIEW_URL = URL + "/exam/review_detail"
 
 choices = 'ABCD'
-weight = 63
+weight = 61
 
 
 class XiaoeTong:
@@ -88,7 +88,7 @@ class XiaoeTong:
             if 'result' not in data_:
                 return
             exam_answer = data_['result']
-            print(exam_answer)
+            # print(exam_answer)
             for i, item in enumerate(exam_answer):
 
                 if 'option' not in item or item['option'] == '':
