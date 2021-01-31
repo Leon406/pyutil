@@ -83,6 +83,7 @@ sites = [
     'pages.github.com',
     'status.github.com',
     'training.github.com',
+    'collector.githubapp.com',
 ]
 
 # 相同ip映射表,减少网络请求数量
@@ -122,6 +123,7 @@ gp = {
     "documentcloud.github.com": ['documentcloud.github.com',
                                  'customer-stories-feed.github.com',
                                  ],
+    "collector.githubapp.com": ['collector.githubapp.com']
 
 }
 
