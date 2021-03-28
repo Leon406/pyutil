@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import re
+import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -14,7 +15,7 @@ def getIpFromIpaddress(site):
     url = "https://ipaddress.com/search/" + site
     trueip = None
     try:
-        res = requests.get(url, headers=headers,timeout=10)
+        res = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(res.text, 'html.parser')
         ip = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", res.text)
         result = soup.find_all('div', class_="comma-separated")
@@ -49,6 +50,7 @@ def getIpFromipapi(site):
     """
     return trueip: None or ip
     """
+
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
         'Host': 'ip-api.com'}
@@ -80,9 +82,7 @@ sites = [
     'github.com',
     'github-production-release-asset-2e65be.s3.amazonaws.com',
     'live.github.com',
-    'pages.github.com',
     'status.github.com',
-    'training.github.com',
     'collector.githubapp.com',
 ]
 
@@ -123,7 +123,8 @@ gp = {
     "documentcloud.github.com": ['documentcloud.github.com',
                                  'customer-stories-feed.github.com',
                                  ],
-    "collector.githubapp.com": ['collector.githubapp.com']
+    "collector.githubapp.com": ['collector.githubapp.com'],
+    "assets-cdn.github.com": ['assets-cdn.github.com', 'pages.github.com', 'training.github.com']
 
 }
 
@@ -151,6 +152,7 @@ def dropDuplication(line):
 def updateHost():
     print(sorted(sites, key=lambda i: i[0]))
     today = datetime.date.today()
+    fail_ips = []
     for site in sites:
         trueip = getIpFromipapi(site)
         if trueip:
@@ -161,6 +163,28 @@ def updateHost():
             else:
                 addr2ip[site] = trueip
                 print(site + "\t" + trueip)
+        else:
+            fail_ips.append(site)
+        time.sleep(4)
+
+    print("fail_ips", fail_ips)
+
+    fail_ips2 = []
+    for site in fail_ips:
+        trueip = getIpFromipapi(site)
+        if trueip:
+            if site in gp and gp[site]:
+                for gsite in gp[site]:
+                    addr2ip[gsite] = trueip
+                    print(gsite + " group \t" + trueip)
+            else:
+                addr2ip[site] = trueip
+                print(site + "\t" + trueip)
+        else:
+            fail_ips2.append(site)
+        time.sleep(4)
+
+    print("fail_ips2", fail_ips2)
 
     with open(hostLocation, "r") as f1:
         f1_lines = f1.readlines()
@@ -179,3 +203,4 @@ def updateHost():
 
 if __name__ == '__main__':
     updateHost()
+    print(getIpFromipapi('api.github.com'))

@@ -7,12 +7,12 @@ import requests
 from M3u8 import M3u8
 from common import Hash
 
-HEADER = {'Cookie': 'ko_token=d2f2693901d65e135f593bcd9fba18db;'}
+HEADER = {'Cookie': ' ko_token=6798ac19bee7e7e3a617f2e21fcfa360;'}
 # TERM_ID = 'term_5f4f0dda1a1c2_g62C3Q'
 # HEADER = {'Cookie': 'dataUpJssdkCookie={"wxver":"","net":"","sid":""}; ko_token=92eb114a76a742a4060cfa1f23a86555'}
-TERM_ID = 'term_5f26a080ecaab_WTVcFW'
+TERM_ID = 'p_603f048be4b0a77c3898e139'
 
-URL = 'https://appoxpkjya89223.h5.xiaoeknow.com'
+URL = 'https://apprpu7lclk2074.h5.xiaoeknow.com'
 CATALOGUE_URL = URL + "/camp/get_term_catalogue"
 SECTION_URL = URL + "/camp/get_task_list"
 VIDEO_URL = URL + "/video/base_info"
