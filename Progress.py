@@ -1,7 +1,7 @@
 import re
 
 import sys
-
+import time
 
 class ProgressBar:
     def __init__(self, count=0, total=0, width=50):
