@@ -18,21 +18,16 @@ doh_header = {
     "user-identity": "12345678901234567890123456789012345678901234",
 }
 
-
+sess = requests.session()
 def getIpFromDoH(site, dohIndex = 1):
-    url = "https://www.ipaddress.com/search/" + site
-    print(url)
-    trueip = None
-    sess = requests.session()
+
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=10)
     # print(res.text)
     for i in res.json()['Answer']:
         if i['type'] == 1:
             # print(i['data'])
             trueip = i['data']
-            return trueip
-
-    return trueip
+            return i['data']
 
 # 需要获取ip的网址
 sites = [
@@ -91,7 +86,6 @@ gp = {
 addr2ip = {}
 hostLocation = r"hosts"
 
-
 def dropDuplication(line):
     flag = False
     if "#*********************github" in line:
@@ -124,10 +118,10 @@ def updateHost():
                 if site in gp and gp[site]:
                     for gsite in gp[site]:
                         addr2ip[gsite] = trueip
-                    print(str(gp[site]) + "\t" + trueip)
+                    # print(str(gp[site]) + "\t" + trueip)
                 else:
                     addr2ip[site] = trueip
-                    print(site + "\t" + trueip)
+                    # print(site + "\t" + trueip)
                 ok.append(site)
                 print("剩余 %d / %d" % (len(ok), len(sites)))
             else:
@@ -153,3 +147,4 @@ def updateHost():
 if __name__ == '__main__':
     updateHost()
     # getIpFromDoH("status.github.com")
+
