@@ -7,68 +7,36 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
+DOHs = ["https://dns.alidns.com/resolve",
+        "https://rubyfish.cn/dns-query",
+        "https://doh.360.cn/query",
+        "https://doh.pub/dns-query"]
 
-def getIpFromIpaddress(site):
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
-        'Host': 'ipaddress.com'}
-    url = "https://ipaddress.com/search/" + site
+doh_header = {
+    "user-source": "360se",
+    "accept": "application/dns-json",
+    "user-identity": "12345678901234567890123456789012345678901234",
+}
+
+
+def getIpFromDoH(site, dohIndex = 1):
+    url = "https://www.ipaddress.com/search/" + site
+    print(url)
     trueip = None
-    try:
-        res = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        ip = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", res.text)
-        result = soup.find_all('div', class_="comma-separated")
-        for c in result:
-            if len(ip) != 0:
-                trueip = ip[0]
-    except Exception as e:
-        print("查询" + site + " 时出现错误: " + str(e))
+    sess = requests.session()
+    res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=10)
+    # print(res.text)
+    for i in res.json()['Answer']:
+        if i['type'] == 1:
+            # print(i['data'])
+            trueip = i['data']
+            return trueip
+
     return trueip
-
-
-def getIpFromChinaz(site):
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
-        'Host': 'ip.tool.chinaz.com'}
-    url = "http://ip.tool.chinaz.com/" + site
-    trueip = None
-    try:
-        res = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        result = soup.find_all('span', class_="Whwtdhalf w15-0")
-        for c in result:
-            ip = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", c.text)
-            if len(ip) != 0:
-                trueip = ip[0]
-    except Exception as e:
-        print("查询" + site + " 时出现错误: " + str(e))
-    return trueip
-
-
-def getIpFromipapi(site):
-    """
-    return trueip: None or ip
-    """
-
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4195.1 Safari/537.36',
-        'Host': 'ip-api.com'}
-    url = "http://ip-api.com/json/%s?lang=zh-CN" % site
-    trueip = None
-    try:
-        res = requests.get(url, headers=headers, timeout=8, verify=False)
-        res = json.loads(res.text)
-        if res["status"] == "success":
-            trueip = res["query"]
-    except Exception as e:
-        print("查询" + site + " 时出现错误: " + str(e))
-    return trueip
-
 
 # 需要获取ip的网址
 sites = [
-    'avatars0.githubusercontent.com',
+    'avatars.githubusercontent.com',
     'codeload.github.com',
     'documentcloud.github.com',
     'github-cloud.s3.amazonaws.com',
@@ -89,28 +57,20 @@ sites = [
 # 相同ip映射表,减少网络请求数量
 gp = {
     # githubusercontent
-    "avatars0.githubusercontent.com": ['avatars0.githubusercontent.com',
-                                       'avatars1.githubusercontent.com',
-                                       'avatars2.githubusercontent.com',
-                                       'avatars3.githubusercontent.com',
-                                       'avatars4.githubusercontent.com',
-                                       'avatars5.githubusercontent.com',
-                                       'avatars6.githubusercontent.com',
-                                       'avatars7.githubusercontent.com',
-                                       'avatars8.githubusercontent.com',
-                                       'avatars.githubusercontent.com',
-                                       'camo.githubusercontent.com',
-                                       'user-images.githubusercontent.com',
-                                       'gist.githubusercontent.com',
-                                       'raw.github.com',
-                                       'raw.githubusercontent.com',
-                                       'cloud.githubusercontent.com',
-
-                                       ],
+    "avatars.githubusercontent.com": ['avatars.githubusercontent.com',
+                                      'camo.githubusercontent.com',
+                                      'user-images.githubusercontent.com',
+                                      'gist.githubusercontent.com',
+                                      'raw.github.com',
+                                      'raw.githubusercontent.com',
+                                      'cloud.githubusercontent.com',
+                                      ],
 
     "github-cloud.s3.amazonaws.com": ['github-cloud.s3.amazonaws.com',
-                                      'github-production-user-asset-6210df.s3.amazonaws.com',
+                                      'github-production-user-asset-6210df.s3.amazonaws.com'
                                       ],
+    "gist.github.com": ['gist.github.com',
+                        'www.github.com'],
     "github-com.s3.amazonaws.com": ['github-com.s3.amazonaws.com',
                                     'github-production-repository-file-5c1aeb.s3.amazonaws.com',
                                     ],
@@ -153,38 +113,27 @@ def updateHost():
     print(sorted(sites, key=lambda i: i[0]))
     today = datetime.date.today()
     fail_ips = []
-    for site in sites:
-        trueip = getIpFromipapi(site)
-        if trueip:
-            if site in gp and gp[site]:
-                for gsite in gp[site]:
-                    addr2ip[gsite] = trueip
-                    print(gsite + " group \t" + trueip)
+    ok = []
+
+    while len(ok) != len(sites):
+        a = [i for i in sites if i not in ok]
+        # print(a)
+        for site in a:
+            trueip = getIpFromDoH(site)
+            if trueip:
+                if site in gp and gp[site]:
+                    for gsite in gp[site]:
+                        addr2ip[gsite] = trueip
+                    print(str(gp[site]) + "\t" + trueip)
+                else:
+                    addr2ip[site] = trueip
+                    print(site + "\t" + trueip)
+                ok.append(site)
+                print("剩余 %d / %d" % (len(ok), len(sites)))
             else:
-                addr2ip[site] = trueip
-                print(site + "\t" + trueip)
-        else:
-            fail_ips.append(site)
-        time.sleep(4)
-
-    print("fail_ips", fail_ips)
-
-    fail_ips2 = []
-    for site in fail_ips:
-        trueip = getIpFromipapi(site)
-        if trueip:
-            if site in gp and gp[site]:
-                for gsite in gp[site]:
-                    addr2ip[gsite] = trueip
-                    print(gsite + " group \t" + trueip)
-            else:
-                addr2ip[site] = trueip
-                print(site + "\t" + trueip)
-        else:
-            fail_ips2.append(site)
-        time.sleep(4)
-
-    print("fail_ips2", fail_ips2)
+                fail_ips.append(site)
+            # print("剩余 %d / %d" % (len(ok), len(sites)))
+        time.sleep(3)
 
     with open(hostLocation, "r") as f1:
         f1_lines = f1.readlines()
@@ -203,4 +152,4 @@ def updateHost():
 
 if __name__ == '__main__':
     updateHost()
-    print(getIpFromipapi('api.github.com'))
+    # getIpFromDoH("status.github.com")
