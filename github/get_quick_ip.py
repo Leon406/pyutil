@@ -42,6 +42,7 @@ sites = [
     'live.github.com',
     'status.github.com',
     'collector.githubapp.com',
+    'github.blog',
 ]
 
 # 相同ip映射表,减少网络请求数量
