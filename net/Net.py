@@ -14,7 +14,6 @@ def download_from_url(down_url, dst):
             if chunk:
                 f.write(chunk)
 
-
 if __name__ == "__main__":
     with open(r"E:\file\pyutil\c.json", 'r', encoding="utf-8") as f:
         s1 = json.load(f)
