@@ -1,11 +1,8 @@
 import datetime
-import json
 import os
-import re
 import time
 
 import requests
-from bs4 import BeautifulSoup
 
 DOHs = ["https://dns.alidns.com/resolve",
         "https://rubyfish.cn/dns-query",
@@ -42,8 +39,6 @@ sites = [
     'assets-cdn.github.com',
     'api.github.com',
     'githubapp.com',
-    'github.com',
-    'github-production-release-asset-2e65be.s3.amazonaws.com',
     'live.github.com',
     'status.github.com',
     'collector.githubapp.com',
@@ -62,9 +57,11 @@ gp = {
                                       ],
 
     "github-cloud.s3.amazonaws.com": ['github-cloud.s3.amazonaws.com',
+                                      'github-production-release-asset-2e65be.s3.amazonaws.com',
                                       'github-production-user-asset-6210df.s3.amazonaws.com'
                                       ],
     "gist.github.com": ['gist.github.com',
+                        'github.com',
                         'www.github.com'],
     "github-com.s3.amazonaws.com": ['github-com.s3.amazonaws.com',
                                     'github-production-repository-file-5c1aeb.s3.amazonaws.com',
