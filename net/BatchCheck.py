@@ -6,7 +6,7 @@ from common.Io import read_lines
 import grequests
 import time
 import multiprocessing
-
+# conda install -c conda-forge grequests
 API = "https://www.chinapyg.com/forum.php?mod=ajax&inajax=yes&infloat=register&handlekey=register&ajaxmenu=1&action=checkinvitecode&invitecode="
 head = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
 
