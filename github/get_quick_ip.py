@@ -39,10 +39,15 @@ sites = [
     'assets-cdn.github.com',
     'api.github.com',
     'githubapp.com',
+    'github.io',
+    'githubstatus.com',
     'live.github.com',
     'status.github.com',
     'collector.githubapp.com',
     'github.blog',
+    'alive.github.com',
+    'central.github.com',
+    'desktop.githubusercontent.com',
 ]
 
 # 相同ip映射表,减少网络请求数量
@@ -55,6 +60,8 @@ gp = {
                                       'raw.github.com',
                                       'raw.githubusercontent.com',
                                       'cloud.githubusercontent.com',
+                                      'media.githubusercontent.com',
+                                      'github.map.fastly.net',
                                       ],
 
     "github-cloud.s3.amazonaws.com": ['github-cloud.s3.amazonaws.com',
