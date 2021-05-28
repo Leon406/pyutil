@@ -20,6 +20,21 @@ def lcm(a, b):
     return a * b // gcd(a, b)
 
 
+def countPrimes(n):
+    """
+     统计质数数量
+    """
+    if n <= 2:
+        return 0
+    prime = [0] * n  # 这个是类似状态组的东西
+    l = int(n ** 0.5)  # 最大遍历上限为√n
+    for i in range(2, l + 1):
+        if prime[i]:  # 合数直接过
+            continue
+        prime[i * i:n:i] = [1] * len(prime[i * i:n:i])  # 如果是质数，质数平方开始到n之间步距为i的每个位置存1
+    return len(prime) - sum(prime) - 2  # 输出总数字与合数的差（-2是去除0 和1）
+
+
 if __name__ == "__main__":
     x = int(
         '1c7bb1ae67670f7e6769b515c174414278e16c27e95b43a789099a1c7d55c717b2f0a0442a7d49503ee09552588ed9bb6eda4af738a02fb31576d78ff72b2499b347e49fef1028182f158182a0ba504902996ea161311fe62b86e6ccb02a9307d932f7fa94cde410619927677f94c571ea39c7f4105fae00415dd7d',
@@ -30,3 +45,5 @@ if __name__ == "__main__":
     print(math.gcd(x, y))
     print(lcm(x, y))
     print(gcd(x, y))
+    print("__________")
+    print(countPrimes(250000000))

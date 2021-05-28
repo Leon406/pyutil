@@ -16,8 +16,9 @@ doh_header = {
 }
 
 sess = requests.session()
-def getIpFromDoH(site, dohIndex = 1):
 
+
+def getIpFromDoH(site, dohIndex=1):
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=10)
     # print(res.text)
     for i in res.json()['Answer']:
@@ -25,6 +26,7 @@ def getIpFromDoH(site, dohIndex = 1):
             # print(i['data'])
             trueip = i['data']
             return i['data']
+
 
 # 需要获取ip的网址
 sites = [
@@ -91,6 +93,7 @@ gp = {
 addr2ip = {}
 hostLocation = r"hosts"
 
+
 def dropDuplication(line):
     flag = False
     if "#*********************github" in line:
@@ -128,7 +131,7 @@ def updateHost():
                     addr2ip[site] = trueip
                     # print(site + "\t" + trueip)
                 ok.append(site)
-                print("剩余 %d / %d" % (len(ok), len(sites)))
+                print("进度 %d / %d" % (len(ok), len(sites)))
             else:
                 fail_ips.append(site)
             # print("剩余 %d / %d" % (len(ok), len(sites)))
@@ -152,4 +155,3 @@ def updateHost():
 if __name__ == '__main__':
     updateHost()
     # getIpFromDoH("status.github.com")
-
