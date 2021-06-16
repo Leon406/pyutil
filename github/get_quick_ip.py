@@ -18,7 +18,7 @@ doh_header = {
 sess = requests.session()
 
 
-def getIpFromDoH(site, dohIndex=1):
+def getIpFromDoH(site, dohIndex=3):
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=10)
     # print(res.text)
     for i in res.json()['Answer']:
