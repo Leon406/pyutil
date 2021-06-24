@@ -6,8 +6,13 @@ import requests
 
 DOHs = ["https://dns.alidns.com/resolve",
         "https://rubyfish.cn/dns-query",
+        # cloudflare-dns.com 国内被墙, 换ip可以正常访问
+        "https://1.1.1.1/dns-query",
         "https://doh.360.cn/query",
-        "https://doh.pub/dns-query"]
+        "https://doh.pub/dns-query",
+        # 国内被墙
+        # "https://dns.google/resolve"
+        ]
 
 doh_header = {
     "user-source": "360se",
@@ -50,7 +55,8 @@ sites = [
     'github-cloud.s3.amazonaws.com',
     'github-com.s3.amazonaws.com',
     'github.githubassets.com',
-    # 'github.global.ssl.fastly.net',
+    # 国内DNS已被污染严重,无法正常解析
+    'github.global.ssl.fastly.net',
     'gist.github.com',
     'assets-cdn.github.com',
     'api.github.com',
@@ -169,4 +175,4 @@ def updateHost():
 if __name__ == '__main__':
     updateHost()
     # check_ping("192.168.10.1")
-    # getIpFromDoH("status.github.com")
+    # getIpFromDoH("github.global.ssl.fastly.net", 4)
