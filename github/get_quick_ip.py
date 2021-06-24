@@ -19,13 +19,27 @@ sess = requests.session()
 
 
 def getIpFromDoH(site, dohIndex=1):
+
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=30)
-    # print(res.text)
+    print(DOHs[dohIndex])
     for i in res.json()['Answer']:
         if i['type'] == 1:
             # print(i['data'])
             trueip = i['data']
+            if check_ping(trueip):
+                print("ok %s" % trueip)
+            else:
+                print("fail %s" % trueip)
+                dohIndex = dohIndex + 1
+                return getIpFromDoH(site, dohIndex % len(DOHs))
+
             return i['data']
+
+
+def check_ping(server):
+    response = os.system("ping -n 1 %s" % server)
+    print("result: ", response)
+    return response == 0
 
 
 # 需要获取ip的网址
@@ -36,7 +50,7 @@ sites = [
     'github-cloud.s3.amazonaws.com',
     'github-com.s3.amazonaws.com',
     'github.githubassets.com',
-    'github.global.ssl.fastly.net',
+    # 'github.global.ssl.fastly.net',
     'gist.github.com',
     'assets-cdn.github.com',
     'api.github.com',
@@ -154,4 +168,5 @@ def updateHost():
 
 if __name__ == '__main__':
     updateHost()
+    # check_ping("192.168.10.1")
     # getIpFromDoH("status.github.com")
