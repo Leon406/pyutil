@@ -23,8 +23,7 @@ doh_header = {
 sess = requests.session()
 
 
-def getIpFromDoH(site, dohIndex=1):
-
+def getIpFromDoH(site, dohIndex=2):
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=30)
     print(DOHs[dohIndex])
     for i in res.json()['Answer']:
@@ -51,7 +50,6 @@ def check_ping(server):
 sites = [
     'avatars.githubusercontent.com',
     'codeload.github.com',
-    'documentcloud.github.com',
     'github-cloud.s3.amazonaws.com',
     'github-com.s3.amazonaws.com',
     'github.githubassets.com',
@@ -61,13 +59,10 @@ sites = [
     'assets-cdn.github.com',
     'api.github.com',
     'githubapp.com',
-    'github.io',
-    'githubstatus.com',
     'live.github.com',
     'status.github.com',
     'collector.githubapp.com',
     'github.blog',
-    'alive.github.com',
     'central.github.com',
     'desktop.githubusercontent.com',
 ]
@@ -102,11 +97,11 @@ gp = {
     "github.githubassets.com": ['github.githubassets.com',
                                 'help.github.com',
                                 ],
-    "documentcloud.github.com": ['documentcloud.github.com',
-                                 'customer-stories-feed.github.com',
-                                 ],
     "collector.githubapp.com": ['collector.githubapp.com'],
-    "assets-cdn.github.com": ['assets-cdn.github.com', 'pages.github.com', 'training.github.com']
+    "live.github.com": ['live.github.com', 'alive.github.com'],
+    "assets-cdn.github.com": ['assets-cdn.github.com', 'pages.github.com', 'training.github.com', 'github.io',
+                              'githubstatus.com', 'documentcloud.github.com',
+                              'customer-stories-feed.github.com', ]
 
 }
 
