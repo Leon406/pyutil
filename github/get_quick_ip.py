@@ -41,7 +41,7 @@ def get_ip_from_doh(site, dohIndex=2):
 
 
 def get_ip(site):
-    return addr2ip[site] if addr2ip[site] else get_ip_from_doh(site)
+    return addr2ip[site] if site in addr2ip else get_ip_from_doh(site)
 
 
 def check_ping(server):
@@ -73,6 +73,7 @@ sites = [
     'github.blog',
     'central.github.com',
     'desktop.githubusercontent.com',
+    'i.imgur.com',
 ]
 
 # 相同ip映射表,减少网络请求数量
@@ -141,7 +142,7 @@ def updateHost():
     ok = []
     while len(ok) != len(sites):
         a = [i for i in sites if i not in ok]
-        # print(a)
+        print(a)
         for site in a:
             trueip = get_ip(site)
             if trueip:
