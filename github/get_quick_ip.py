@@ -23,7 +23,7 @@ doh_header = {
 sess = requests.session()
 
 
-def getIpFromDoH(site, dohIndex=2):
+def get_ip_from_doh(site, dohIndex=2):
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=30)
     print(DOHs[dohIndex])
     for i in res.json()['Answer']:
@@ -35,14 +35,18 @@ def getIpFromDoH(site, dohIndex=2):
             else:
                 print("fail %s" % trueip)
                 dohIndex = dohIndex + 1
-                return getIpFromDoH(site, dohIndex % len(DOHs))
+                return get_ip_from_doh(site, dohIndex % len(DOHs))
 
             return i['data']
 
 
+def get_ip(site):
+    return addr2ip[site] if addr2ip[site] else get_ip_from_doh(site)
+
+
 def check_ping(server):
     response = os.system("ping -n 1 %s" % server)
-    print("result: ", response)
+    # print("result: ", response)
     return response == 0
 
 
@@ -128,15 +132,13 @@ def dropDuplication(line):
 # 更新host, 并刷新本地DNS
 def updateHost():
     print(sorted(sites, key=lambda i: i[0]))
-    today = datetime.date.today()
     fail_ips = []
     ok = []
-
     while len(ok) != len(sites):
         a = [i for i in sites if i not in ok]
         # print(a)
         for site in a:
-            trueip = getIpFromDoH(site)
+            trueip = get_ip(site)
             if trueip:
                 if site in gp and gp[site]:
                     for gsite in gp[site]:
@@ -151,8 +153,12 @@ def updateHost():
                 fail_ips.append(site)
             # print("剩余 %d / %d" % (len(ok), len(sites)))
         time.sleep(3)
+    write_hosts(hostLocation)
 
-    with open(hostLocation, "r") as f1:
+
+def write_hosts(path):
+    today = datetime.date.today()
+    with open(path, "r") as f1:
         f1_lines = f1.readlines()
         with open("temphost", "w") as f2:
             f2.write("#*********************github " +
@@ -163,11 +169,28 @@ def updateHost():
 
             for key in addr2ip:
                 f2.write(addr2ip[key] + "\t" + key + "\n")
-    os.remove(hostLocation)
-    os.rename("temphost", hostLocation)
+    os.remove(path)
+    os.rename("temphost", path)
 
 
 if __name__ == '__main__':
+    okIps = []
+    failDomains = []
+    with open(hostLocation, "r") as f1:
+        f1_lines = f1.readlines()
+        for i in f1_lines:
+            l = i.replace("\n", "").split('\t')
+            if len(l) > 1:
+                print(l)
+                addr2ip[l[1]] = l[0]
+                if l[0] not in okIps:
+                    if check_ping(l[0]):
+                        okIps.append(l[0])
+                    else:
+                        print("fail _________", l[0], l[1])
+                        failDomains.append(l[1])
+        print(addr2ip)
+        print(failDomains)
     updateHost()
     # check_ping("192.168.10.1")
     # getIpFromDoH("github.global.ssl.fastly.net", 4)
