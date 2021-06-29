@@ -114,7 +114,8 @@ gp = {
 }
 
 addr2ip = {}
-hostLocation = r"./github/hosts"
+# hostLocation = r"./github/hosts"
+hostLocation = r"hosts"
 
 
 def dropDuplication(line):
