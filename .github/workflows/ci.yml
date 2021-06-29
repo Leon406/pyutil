@@ -6,7 +6,7 @@ name: Python package
 on:
    schedule:
     # 定时任务
-    - cron: '30 0-16/3 * * *'
+    - cron: '30 4 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
    workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,6 +31,4 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Test with pytest
-      run: |
-        echo "Hello test"
+        python ./github/get_quick_ip.py

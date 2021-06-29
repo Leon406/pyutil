@@ -1,7 +1,7 @@
 import datetime
 import os
 import time
-
+import platform
 import requests
 
 DOHs = ["https://dns.alidns.com/resolve",
@@ -45,7 +45,11 @@ def get_ip(site):
 
 
 def check_ping(server):
-    response = os.system("ping -n 1 %s" % server)
+    print(platform.system())
+    if platform.system() == "Windows":
+        response = os.system("ping -n 1 %s" % server)
+    else:
+        response = os.system("ping -c 1 %s" % server)
     # print("result: ", response)
     return response == 0
 
@@ -110,7 +114,7 @@ gp = {
 }
 
 addr2ip = {}
-hostLocation = r"hosts"
+hostLocation = r"./github/hosts"
 
 
 def dropDuplication(line):
