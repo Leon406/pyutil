@@ -32,5 +32,5 @@ jobs:
         python -m pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: check ip
-        run: |
-          python ./github/get_quick_ip.py
+      run: |
+        python ./github/get_quick_ip.py
