@@ -116,7 +116,7 @@ gp = {
 
 addr2ip = {}
 # hostLocation = r"./github/hosts"
-hostLocation = r"hosts"
+hostLocation = r"hosts" if platform.system() == "Windows" else r"./github/hosts"
 
 
 def dropDuplication(line):
