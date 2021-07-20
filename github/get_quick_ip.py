@@ -45,7 +45,6 @@ def get_ip(site):
 
 
 def check_ping(server):
-    print(platform.system())
     if platform.system() == "Windows":
         response = os.system("ping -n 1 %s" % server)
     else:
@@ -188,10 +187,11 @@ if __name__ == '__main__':
             l = i.replace("\n", "").split('\t')
             if len(l) > 1:
                 print(l)
-                addr2ip[l[1]] = l[0]
+
                 if l[0] not in okIps:
                     if check_ping(l[0]):
                         okIps.append(l[0])
+                        addr2ip[l[1]] = l[0]
                     else:
                         print("fail _________", l[0], l[1])
                         failDomains.append(l[1])
