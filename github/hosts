@@ -1,9 +1,7 @@
-#*********************github 2021-07-20 update********************
-185.199.111.133	avatars.githubusercontent.com
+#*********************github 2021-07-28 update********************
 192.30.255.121	codeload.github.com
 52.216.207.195	github-cloud.s3.amazonaws.com
 52.216.152.196	github-com.s3.amazonaws.com
-185.199.110.154	github.githubassets.com
 151.101.1.194	github.global.ssl.fastly.net
 192.30.255.112	gist.github.com
 185.199.111.153	assets-cdn.github.com
@@ -11,11 +9,13 @@
 140.82.113.29	githubapp.com
 140.82.114.26	live.github.com
 140.82.114.17	status.github.com
-192.0.66.2	github.blog
 140.82.112.21	central.github.com
 185.199.108.133	desktop.githubusercontent.com
 151.101.196.193	i.imgur.com
 185.199.111.133	camo.githubusercontent.com
+185.199.110.154	help.github.com
+3.224.104.154	collector.githubapp.com
+185.199.111.133	avatars.githubusercontent.com
 185.199.111.133	user-images.githubusercontent.com
 185.199.111.133	gist.githubusercontent.com
 185.199.111.133	raw.github.com
@@ -27,7 +27,7 @@
 52.216.207.195	github-production-release-asset-2e65be.s3.amazonaws.com
 52.216.207.195	github-production-user-asset-6210df.s3.amazonaws.com
 52.216.152.196	github-production-repository-file-5c1aeb.s3.amazonaws.com
-185.199.110.154	help.github.com
+185.199.110.154	github.githubassets.com
 192.30.255.112	github.com
 192.30.255.112	www.github.com
 185.199.111.153	pages.github.com
@@ -37,4 +37,4 @@
 185.199.111.153	documentcloud.github.com
 185.199.111.153	customer-stories-feed.github.com
 140.82.114.26	alive.github.com
-3.224.104.154	collector.githubapp.com
+192.0.66.2	github.blog
