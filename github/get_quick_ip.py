@@ -4,15 +4,18 @@ import time
 import platform
 import requests
 
-DOHs = ["https://dns.alidns.com/resolve",
-        "https://rubyfish.cn/dns-query",
-        # cloudflare-dns.com 国内被墙, 换ip可以正常访问
-        "https://1.1.1.1/dns-query",
-        "https://doh.360.cn/query",
-        "https://doh.pub/dns-query",
-        # 国内被墙
-        # "https://dns.google/resolve"
-        ]
+DOHs = [
+    "https://1.1.1.1/dns-query"
+    # ,
+    # "https://dns.alidns.com/resolve",
+    # "https://rubyfish.cn/dns-query",
+    # cloudflare-dns.com 国内被墙, 换ip可以正常访问
+
+    # "https://doh.360.cn/query",
+    # "https://doh.pub/dns-query",
+    # 国内被墙
+    # "https://dns.google/resolve"
+]
 
 doh_header = {
     "user-source": "360se",
@@ -23,21 +26,29 @@ doh_header = {
 sess = requests.session()
 
 
-def get_ip_from_doh(site, dohIndex=2):
+def get_ip_from_doh(site, dohIndex=0):
     res = sess.get("%s?name=%s&type=1" % (DOHs[dohIndex], site), headers=doh_header, timeout=30)
     print(DOHs[dohIndex])
-    for i in res.json()['Answer']:
-        if i['type'] == 1:
-            # print(i['data'])
-            trueip = i['data']
-            if check_ping(trueip):
-                print("ok %s" % trueip)
-            else:
-                print("fail %s" % trueip)
-                dohIndex = dohIndex + 1
-                return get_ip_from_doh(site, dohIndex % len(DOHs))
-
-            return i['data']
+    if res.status_code == 200:
+        for i in res.json()['Answer']:
+            if i['type'] == 1:
+                print(i['data'])
+                # trueip = i['data']
+                # if check_ping(trueip):
+                #     print("ok %s" % trueip)
+                # else:
+                #     print("fail %s" % trueip)
+                #     if dohIndex == len(DOHs) - 1:
+                #         return
+                #     dohIndex = dohIndex + 1
+                #     return get_ip_from_doh(site, dohIndex % len(DOHs))
+                return i['data']
+    else:
+        print(" fail %s" % site, res.status_code)
+        if dohIndex == len(DOHs) - 1:
+            return
+        dohIndex = dohIndex + 1
+        return get_ip_from_doh(site, dohIndex % len(DOHs))
 
 
 def get_ip(site):
@@ -45,6 +56,10 @@ def get_ip(site):
 
 
 def check_ping(server):
+    global failIps
+    if server in failIps:
+        print("already fail ip")
+        return False
     if platform.system() == "Windows":
         response = os.system("ping -n 1 %s" % server)
     else:
@@ -71,7 +86,6 @@ sites = [
     'collector.githubapp.com',
     'github.blog',
     'central.github.com',
-    'desktop.githubusercontent.com',
     'i.imgur.com',
 ]
 
@@ -87,6 +101,7 @@ gp = {
                                       'cloud.githubusercontent.com',
                                       'media.githubusercontent.com',
                                       'github.map.fastly.net',
+                                      'desktop.githubusercontent.com',
                                       ],
 
     "github-cloud.s3.amazonaws.com": ['github-cloud.s3.amazonaws.com',
@@ -116,6 +131,7 @@ gp = {
 addr2ip = {}
 # hostLocation = r"./github/hosts"
 hostLocation = r"hosts" if platform.system() == "Windows" else r"./github/hosts"
+fail_ips = []
 
 
 def dropDuplication(line):
@@ -137,9 +153,9 @@ def dropDuplication(line):
 # 更新host, 并刷新本地DNS
 def updateHost():
     print(sorted(sites, key=lambda i: i[0]))
-    fail_ips = []
     ok = []
-    while len(ok) != len(sites):
+    fails = []
+    while len(ok) + len(fails) != len(sites):
         a = [i for i in sites if i not in ok]
         print(a)
         for site in a:
@@ -155,8 +171,10 @@ def updateHost():
                 ok.append(site)
                 print("进度 %d / %d" % (len(ok), len(sites)))
             else:
-                fail_ips.append(site)
-            # print("剩余 %d / %d" % (len(ok), len(sites)))
+                print("获取失败", site)
+                fails.append(site)
+
+        print("失败:", fails)
         time.sleep(3)
     write_hosts(hostLocation)
 
@@ -180,6 +198,7 @@ def write_hosts(path):
 
 if __name__ == '__main__':
     okIps = []
+    failIps = []
     failDomains = []
     with open(hostLocation, "r") as f1:
         f1_lines = f1.readlines()
@@ -188,15 +207,22 @@ if __name__ == '__main__':
             if len(l) > 1:
                 print(l)
 
-                if l[0] not in okIps:
+                if l[0] in failIps:
+                    print("quick fail _________", l[0], l[1])
+                    failDomains.append(l[1])
+                elif l[0] in okIps:
+                    print("quick pass _________", l[0], l[1])
+                    addr2ip[l[1]] = l[0]
+                else:
                     if check_ping(l[0]):
                         okIps.append(l[0])
                         addr2ip[l[1]] = l[0]
                     else:
                         print("fail _________", l[0], l[1])
                         failDomains.append(l[1])
-        print(addr2ip)
-        print(failDomains)
+                        failIps.append(l[0])
+        print("ok: ", addr2ip)
+        print("fails: ", failDomains)
     updateHost()
     # check_ping("192.168.10.1")
     # getIpFromDoH("github.global.ssl.fastly.net", 4)
