@@ -1,4 +1,4 @@
-#*********************github 2021-08-27 update********************
+#*********************github 2021-09-10 update********************
 192.30.255.121	codeload.github.com
 52.216.207.195	github-cloud.s3.amazonaws.com
 192.30.255.112	gist.github.com
@@ -15,7 +15,6 @@
 192.30.255.112	www.github.com
 140.82.114.26	alive.github.com
 151.101.196.193	i.imgur.com
-34.193.50.232	collector.githubapp.com
 140.82.112.21	central.github.com
 192.0.66.2	github.blog
 185.199.109.133	avatars.githubusercontent.com
@@ -38,3 +37,4 @@
 185.199.108.153	documentcloud.github.com
 185.199.108.153	customer-stories-feed.github.com
 185.199.109.133	desktop.githubusercontent.com
+3.221.128.67	collector.githubapp.com

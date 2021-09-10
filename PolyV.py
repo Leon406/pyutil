@@ -108,14 +108,16 @@ def main(argc, argv):
         return 0
 
     m3u8keyurl = rem.group(1).strip() + "?token=" + get_playsafe_token(g_videoid)
-    # print(m3u8keyurl)
+    print(m3u8keyurl)
     m3u8keyurl = re.sub(r'://([^/]+)/', r'://\1/playsafe/', m3u8keyurl, 1, re.I)
 
     r = requests.get(m3u8keyurl)
     m3u8key = r.content
 
+    print("m3u8 key  %s" % m3u8key)
+
     keylen = len(m3u8key)
-    print(m3u8keyurl + " key length is 32, decoding..." +r.text)
+    print(m3u8keyurl + " key length is 32, decoding..." + r.text)
     if keylen == 32:
         with open('00.key', "wb") as f:
             print(m3u8key)
