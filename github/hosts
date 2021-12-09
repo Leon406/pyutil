@@ -1,8 +1,7 @@
-#*********************github 2021-11-17 update********************
+#*********************github 2021-12-09 update********************
 52.216.207.195	github-cloud.s3.amazonaws.com
 192.30.255.112	gist.github.com
 192.30.255.117	api.github.com
-140.82.113.29	githubapp.com
 140.82.114.26	live.github.com
 140.82.114.17	status.github.com
 52.217.39.84	github-production-repository-file-5c1aeb.s3.amazonaws.com
@@ -38,3 +37,4 @@
 192.30.255.121	codeload.github.com
 192.30.255.121	nodeload.github.com
 140.82.113.21	central.github.com
+140.82.114.30	githubapp.com
