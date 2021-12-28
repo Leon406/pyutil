@@ -1,4 +1,4 @@
-#*********************github 2021-12-09 update********************
+#*********************github 2021-12-28 update********************
 52.216.207.195	github-cloud.s3.amazonaws.com
 192.30.255.112	gist.github.com
 192.30.255.117	api.github.com
@@ -26,7 +26,6 @@
 185.199.109.133	desktop.githubusercontent.com
 185.199.109.154	github.githubassets.com
 185.199.109.154	help.github.com
-151.101.1.194	github.global.ssl.fastly.net
 185.199.111.153	assets-cdn.github.com
 185.199.111.153	pages.github.com
 185.199.111.153	training.github.com
@@ -38,3 +37,4 @@
 192.30.255.121	nodeload.github.com
 140.82.113.21	central.github.com
 140.82.114.30	githubapp.com
+151.101.1.194	github.global.ssl.fastly.net
