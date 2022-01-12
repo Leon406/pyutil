@@ -20,11 +20,12 @@ from common.Hash import b64, url_encode
 其实这个也可以做无限刷邀请，不过刷一次才1G流量，还不如刷注册，通过之前的抓包教程抓取注册接口加入你的邀请码即可实现，你可以尝试实现一下当做练习
 """
 
-rootdir = os.getcwd()
-proxies = {'https': '127.0.0.1:10809', 'http': '127.0.0.1:10809'}
+rootdir = os.path.abspath(os.path.join(os.getcwd(), ".."))+"/disco"
+proxies = {'https': '127.0.0.1:7890', 'http': '127.0.0.1:7890'}
 
 imeis = [
     3065285382274984,
+    4640491986453832,
 ]
 
 
@@ -100,7 +101,7 @@ def getNode(imei=None):
 
 
 if __name__ == '__main__':
-    # getNode()
+    getNode()
     # for i in imeis:
     #     # print(i)
     #     getNode()

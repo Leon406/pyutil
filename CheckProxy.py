@@ -5,8 +5,6 @@ monkey.patch_all()
 import grequests
 import multiprocessing
 
-# http://free.proxypool.cc/ip.txt
-# http://amp.tsddos.cc/1001/proxy4.txt
 PROXY_PATH = "proxy/pool"
 PROXY_OK_PATH = "proxy_ok.txt"
 API = "https://www.baidu.com?c="
