@@ -20,60 +20,11 @@ from common.Hash import b64, url_encode
 其实这个也可以做无限刷邀请，不过刷一次才1G流量，还不如刷注册，通过之前的抓包教程抓取注册接口加入你的邀请码即可实现，你可以尝试实现一下当做练习
 """
 
-rootdir = r"E:\file\pyutil\disco"
+rootdir = os.getcwd()
 proxies = {'https': '127.0.0.1:10809', 'http': '127.0.0.1:10809'}
 
 imeis = [
-    1353244593106323,
-    1829991314682700,
-    1972819990058859,
-    2127517063777514,
-    2917712996416056,
-    3199268602706074,
-    3321979542388907,
-    3909180787118620,
-    4355940717531536,
-    4469186688253113,
-    4639733780516235,
-    4830034685387041,
-    5151961575238080,
-    5163712794031804,
-    6074437969521833,
-    6501427152943188,
-    6695223098114299,
-    8080743836988054,
-    8431773483607261,
-    8601843693464202,
-    8607176953713373,
-    8683721215860931,
-    8695128641416784,
-    8803605472657623,
-    8830524576775602,
-    9298683244657664,
-    9313933179676075,
-    9487914252054113,
-    9824009183095831,
-    1675625538135469,
-    1706295070883628,
-    2234892264172339,
-    2312808084138875,
-    2386952730323936,
-    2419895070226616,
-    3501716456808154,
-    3508589607510758,
-    3776256238704731,
-    3970391896571494,
-    4412539856305736,
-    5319523345158011,
-    5558448628134069,
-    5670450002700128,
-    6040726342261407,
-    6340696866198090,
-    6890977096853941,
-    7805687841899910,
-    7878249540990062,
-    7916275735018366,
-    9315238126846700,
+    3065285382274984,
 ]
 
 
@@ -117,7 +68,8 @@ def getNode(imei=None):
         "Content-Type": "application/text; charset=utf-8"
     }  # 注册接口提交的请求头，通过抓包可以获得
     post_data = "kIva131Z8nSWEtWLHUoxNqxe6Pban1Zxa7Dpd5H6B64="  # 这段数据用的是AES加密再通过BASE64编码，解密后的内容是：{"phoneModel":"OE106"}，加密手机型号？？什么骚操作，和手机串号没有关联，那么就没有做验证，填写固定值就行了，可能是BUG，估计会被修复，不过已经知道算法了，修复了也可以算出来
-    req = session.post(url, post_data, headers=headers, proxies=proxies, verify=False)  # 向服务器发送post请求
+    req = session.post(url, post_data, headers=headers, #proxies=proxies,
+                       verify=False)  # 向服务器发送post请求
     data = json.loads(req.text)  # 服务器返回的数据交给data
     if data['message'] == "登陆成功":  # 判断是否登陆成功，成功则表示注册成功
         print("获取成功！")
@@ -127,7 +79,9 @@ def getNode(imei=None):
         print("剩余流量：" + data['data']['user']['flowRemaining'])
         print("获取SSR节点列表：")
         headers['Authorization'] = 'Token ' + data['data']['token']
-        req_ssr = session.post("https://discovpn.com/api/v2/nodes/", "", headers=headers, proxies=proxies, verify=False)
+        req_ssr = session.post("https://discovpn.com/api/v2/nodes/", "", headers=headers,
+                               # proxies=proxies,
+                               verify=False)
         print(req_ssr.text)
         if req_ssr.status_code != 200:
             print("错误")
@@ -146,8 +100,9 @@ def getNode(imei=None):
 
 
 if __name__ == '__main__':
-    for i in imeis:
-        print(i)
-        # getNode()
+    # getNode()
+    # for i in imeis:
+    #     # print(i)
+    #     getNode()
 
     ssr()
