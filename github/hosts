@@ -1,4 +1,4 @@
-#*********************github 2022-02-18 update********************
+#*********************github 2022-03-06 update********************
 52.216.207.195	github-cloud.s3.amazonaws.com
 192.30.255.112	gist.github.com
 192.30.255.117	api.github.com
@@ -23,13 +23,9 @@
 185.199.109.133	media.githubusercontent.com
 185.199.109.133	github.map.fastly.net
 185.199.109.133	desktop.githubusercontent.com
-185.199.109.154	github.githubassets.com
-185.199.109.154	help.github.com
 192.30.255.121	codeload.github.com
 192.30.255.121	nodeload.github.com
-140.82.113.21	central.github.com
 140.82.114.30	githubapp.com
-151.101.1.194	github.global.ssl.fastly.net
 185.199.108.153	assets-cdn.github.com
 185.199.108.153	pages.github.com
 185.199.108.153	training.github.com
@@ -38,3 +34,15 @@
 185.199.108.153	documentcloud.github.com
 185.199.108.153	customer-stories-feed.github.com
 140.82.113.22	collector.githubapp.com
+185.199.109.133	favicons.githubusercontent.com
+185.199.109.133	objects.githubusercontent.com
+185.199.108.154	github.githubassets.com
+185.199.108.154	help.github.com
+151.101.1.194	github.global.ssl.fastly.net
+140.82.114.22	central.github.com
+13.107.42.16	pipelines.actions.githubusercontent.com
+192.30.255.117	collector.github.com
+64.71.144.202	github.community
+52.151.41.89	github.dev
+140.82.114.21	support.github.com
+185.199.109.154	docs.github.com
