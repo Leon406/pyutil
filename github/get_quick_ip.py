@@ -86,6 +86,11 @@ sites = [
     'collector.githubapp.com',
     'github.blog',
     'central.github.com',
+    'pipelines.actions.githubusercontent.com',
+    'github.dev',
+    'github.community',
+    'support.github.com',
+    'docs.github.com',
     'i.imgur.com',
 ]
 
@@ -93,12 +98,14 @@ sites = [
 gp = {
     # githubusercontent
     "avatars.githubusercontent.com": ['avatars.githubusercontent.com',
+                                      'favicons.githubusercontent.com',
                                       'camo.githubusercontent.com',
                                       'user-images.githubusercontent.com',
                                       'gist.githubusercontent.com',
                                       'raw.github.com',
                                       'raw.githubusercontent.com',
                                       'cloud.githubusercontent.com',
+                                      'objects.githubusercontent.com',
                                       'media.githubusercontent.com',
                                       'github.map.fastly.net',
                                       'desktop.githubusercontent.com',
@@ -124,7 +131,8 @@ gp = {
     "live.github.com": ['live.github.com', 'alive.github.com'],
     "assets-cdn.github.com": ['assets-cdn.github.com', 'pages.github.com', 'training.github.com', 'github.io',
                               'githubstatus.com', 'documentcloud.github.com',
-                              'customer-stories-feed.github.com', ]
+                              'customer-stories-feed.github.com', ],
+    "api.github.com": ["api.github.com", "collector.github.com"]
 
 }
 

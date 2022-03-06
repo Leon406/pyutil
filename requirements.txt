@@ -2,3 +2,5 @@ requests==2.25.1
 pycryptodome
 bs4
 grequests
+cryptography
+pillow
