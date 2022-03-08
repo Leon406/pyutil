@@ -48,12 +48,30 @@ class PrpCrypt:
         return decrypted_text
 
 
+from hashlib import md5
+
+def bytes_to_key(my_data, salt, output=48):
+    # extended from https://gist.github.com/gsakkis/4546068
+    assert len(salt) == 8, len(salt)
+    my_data += salt
+    key = md5(my_data).digest()
+    final_key = key
+    while len(final_key) < output:
+        key = md5(key + my_data).digest()
+        final_key += key
+    return final_key[:output]
 # 加解密
 if __name__ == '__main__':
-    pc = PrpCrypt()
-    a = "感谢"
-    print(pc.decrypt('/l2MHkUIJ+nUt2vd+A6soQ=='))
-    print("加密前：%s" % a)
-    b = pc.encrypt(a)
-    print("解密后：%s" % b)
+    passphrase = "583a01a9ba901a3adda7252ebca42c09"
+    salt = "7675fd06c6089af2"
+    r = bytes_to_key(passphrase.encode(), bytes.fromhex(salt), 32 + 16)
+    print(r)
+    print(''.join(['%02X ' % b for b in r]))
+    pass
+    # pc = PrpCrypt()
+    # a = "感谢"
+    # print(pc.decrypt('/l2MHkUIJ+nUt2vd+A6soQ=='))
+    # print("加密前：%s" % a)
+    # b = pc.encrypt(a)
+    # print("解密后：%s" % b)
 

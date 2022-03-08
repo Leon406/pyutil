@@ -1,6 +1,10 @@
-requests==2.25.1
+requests==2.27.1
 pycryptodome
 bs4
-grequests
+grequests~=0.6.0
+urllib3~=1.26.8
+gevent~=21.12.0
+gmpy2~=2.1.2
+libnum~=1.7.1
 cryptography
-pillow
+pillow~=9.0.1
