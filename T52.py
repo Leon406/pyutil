@@ -11,7 +11,8 @@ headers = {
 }
 # 可输入链接：https://v.douyin.com/dMAhh44/
 # inputUrl = input('粘贴分享链接：')
-shorts = ["https://v.douyin.com/dMAhh44/", "https://v.douyin.com/dMAhh44/"]
+# shorts = ["https://v.douyin.com/dMAhh44/"]
+shorts = ["https://v.douyin.com/jf66Np3/"]
 
 for inputUrl in shorts:
 
@@ -20,6 +21,7 @@ for inputUrl in shorts:
 
     startPage = sess.get(shortUrl, headers=headers, allow_redirects=False)
     location = startPage.headers['location']
+    print(location)
     sec_uid = re.findall('(?<=sec_uid=)[\\w -]+', location, re.M | re.I)[0]
     name = sess.get('https://www.iesdouyin.com/web/api/v2/user/info/?sec_uid={}'.format(sec_uid),
                     headers=headers).text
@@ -35,7 +37,7 @@ for inputUrl in shorts:
         print('directory exist')
     # os.chdir(saveFileDir)
 
-    year = ('2018', '2019', '2020', '2021')
+    year = ('2018', '2019', '2020', '2021', '2022')
     month = ('01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12')
     timepool = [x + '-' + y + '-01 00:00:00' for x in year for y in month]
     print(timepool)
@@ -69,11 +71,15 @@ for inputUrl in shorts:
                 videourl = item['video']['play_addr']['url_list'][0]
                 start = time.time()
                 print('{} ===>downloading'.format(videotitle))
-                with open(saveFileDir+"/"+videotitle + '.mp4', 'wb') as v:
-                    try:
-                        v.write(requests.get(url=videourl, headers=headers).content)
-                        end = time.time()
-                        cost = end - start
-                        print('{} ===>downloaded ===>cost {}s'.format(videotitle, cost))
-                    except Exception as e:
-                        print('download error')
+                saveFile = saveFileDir + "/" + videotitle + '.mp4'
+                if not os.path.exists(saveFile):
+                    with open(saveFile, 'wb') as v:
+                        try:
+                            v.write(requests.get(url=videourl, headers=headers).content)
+                            end = time.time()
+                            cost = end - start
+                            print('{} ===>downloaded ===>cost {}s'.format(videotitle, cost))
+                        except Exception as e:
+                            print('download error')
+                else:
+                    print('%s exist ' % saveFile)
