@@ -63,20 +63,18 @@ for inputUrl in shorts:
             endarray = time.strptime(timepool[i + 1], "%Y-%m-%d %H:%M:%S")
             t1 = int(time.mktime(beginarray) * 1000)
             t2 = int(time.mktime(endarray) * 1000)
-            # print(t1, t2)
+            print(t1, t2)
 
             params = {
                 'sec_uid': sec_uid,
                 'count': 200,
                 'min_cursor': t1,
                 'max_cursor': t2,
-                'aid': 1128,
-                '_signature': 'PtCNCgAAXljWCq93QOKsFT7QjR'
             }
             awemeurl = 'https://www.iesdouyin.com/web/api/v2/aweme/post/?'
             awemehtml = sess.get(url=awemeurl, params=params, headers=headers).text
             data = json.loads(awemehtml)
-            print(awemehtml)
+            # print(awemehtml)
             for item in data['aweme_list']:
                 # videotitle = re.sub(r"[^\w]", "", item['desc'])
                 # 想保留什么在中括号里加,保留逗号  r"[^\w，]"
@@ -93,30 +91,31 @@ for inputUrl in shorts:
                 properTitle = re.sub(r"[@#][^ ]+ *", "", item['desc'])
                 url = pubdateUrl % (item['aweme_id'], sec_uid)
                 html = requests.get(url=url, headers=cookieHeader).text
-                date = re.findall(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}', html, re.I | re.M)[0]
+                # date = re.findall(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}', html, re.I | re.M)[0]
+                date = ""
                 print("%s,%s,%s" % (videoId, properTitle, date))
-                if not os.path.exists(saveFile):
-                    write(metaFile, "%s,%s,%s" % (item['aweme_id'], properTitle, date))
-                    with open(saveFile, 'wb') as v:
-                        try:
-                            v.write(requests.get(url=videourl, headers=headers).content)
-                            end = time.time()
-                            cost = end - start
-                            print('{} ===>downloaded ===>cost {}s'.format(videoId, cost))
-                        except Exception as e:
-                            print('download error')
-                else:
-                    print('%s exist ' % saveFile)
+                # if not os.path.exists(saveFile):
+                #     write(metaFile, "%s,%s,%s" % (item['aweme_id'], properTitle, date))
+                #     with open(saveFile, 'wb') as v:
+                #         try:
+                #             v.write(requests.get(url=videourl, headers=headers).content)
+                #             end = time.time()
+                #             cost = end - start
+                #             print('{} ===>downloaded ===>cost {}s'.format(videoId, cost))
+                #         except Exception as e:
+                #             print('download error')
+                # else:
+                #     print('%s exist ' % saveFile)
 
-                saveFile = saveFileDir + "/" + videoId + '.jpeg'
-                if not os.path.exists(saveFile):
-                    with open(saveFile, 'wb') as v:
-                        try:
-                            v.write(requests.get(url=videoCoverurl, headers=headers).content)
-                            end = time.time()
-                            cost = end - start
-                            print('{} ===>downloaded image ===>cost {}s'.format(videoId, cost))
-                        except Exception as e:
-                            print('download error')
-                else:
-                    print('%s exist ' % saveFile)
+                # saveFile = saveFileDir + "/" + videoId + '.jpeg'
+                # if not os.path.exists(saveFile):
+                #     with open(saveFile, 'wb') as v:
+                #         try:
+                #             v.write(requests.get(url=videoCoverurl, headers=headers).content)
+                #             end = time.time()
+                #             cost = end - start
+                #             print('{} ===>downloaded image ===>cost {}s'.format(videoId, cost))
+                #         except Exception as e:
+                #             print('download error')
+                # else:
+                #     print('%s exist ' % saveFile)

@@ -1,0 +1,33 @@
+{
+	"name": "验证码识别(自建服务器)",
+	"description": "服务器验证码识别",
+	"version": "1.0",
+	"manifest_version": 3,
+	"icons": {
+		"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png"
+	},
+	"action": {
+		"default_icon": "icon48.png",
+		"default_title": "识别验证码",
+		"default_popup": "index.html"
+	},
+	"background": {
+		"scripts" : [ "background.js" ]
+
+	},
+	"permissions": [
+		"notifications",
+		"contextMenus",
+		"tabs"
+	],
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["content-script.js"],
+			"run_at": "document_idle"
+		}
+    ],
+	"host_permissions": ["<all_urls>"]
+}

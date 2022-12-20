@@ -1,0 +1,1 @@
+nohup python OcrServer.py >> /opt/ocr/log.txt 2>&1 &
