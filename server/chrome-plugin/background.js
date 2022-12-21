@@ -1,5 +1,6 @@
 // 部署后配置服务器地址
 const ocrServer = "";
+
 chrome.contextMenus.create({
 		title: '识别验证码',
 		id: 'search',
@@ -18,7 +19,11 @@ chrome.contextMenus.onClicked.addListener(function(item, tab) {
 
 function handleBase64(base64) {
 	console.log("handleBase64",base64)
-	return base64&&fetch(ocrServer+"/ocr", {
+	if(!base64) {
+		notification("图片转base64错误,请确认图片是否有跨域限制", '失败')
+	    return;
+	}
+	return fetch(ocrServer +"/ocr", {
 			"headers": {
 				"accept": "application/json, text/javascript, */*; q=0.01",
 				"accept-language": "zh-CN,zh;q=0.9",
@@ -57,8 +62,6 @@ function notification(message, title = '') {
 		type: 'basic',
 		title,
 		message,
-		// contextMessage: '',
-		eventTime: 3000,
 		iconUrl: 'icon48.png',
 	})
 }

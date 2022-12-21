@@ -14,8 +14,13 @@ function drawBase64Image (img){
     canvas.height = img.height;
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, img.width, img.height);
-    var dataURL = canvas.toDataURL('image/');
-	console.log("dataURL",dataURL)
+	var dataURL;
+	try{
+	   dataURL = canvas.toDataURL('image/');
+	   console.log("dataURL",dataURL)
+	}catch(e) {
+	   console.error(e);
+	}
     return dataURL;
 }
 
