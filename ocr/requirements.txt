@@ -1,0 +1,7 @@
+requests
+flask
+tensorflow
+numpy
+pillow
+opencv-python
+pyyaml

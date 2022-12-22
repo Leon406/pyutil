@@ -1,5 +1,5 @@
 {
-	"name": "验证码识别(自建服务器)",
+	"name": "验证码识别(个人服务器)",
 	"description": "服务器验证码识别",
 	"version": "1.1",
 	"manifest_version": 3,

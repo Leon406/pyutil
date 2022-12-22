@@ -1,6 +1,17 @@
+
+## muggle-ocr 需要手动安装
 解压 muggle-ocr-1.0.3.tar.gz
-安装
 python setup.py install
 
-pip install tensorflow numpy pillow opencv-python pyyaml
+## 安装
 
+
+pip install  -r requirements.txt
+
+## 启动
+python MugglerOcrServer.py
+
+
+## Linux 后台运行脚本
+
+bash startOcrServer

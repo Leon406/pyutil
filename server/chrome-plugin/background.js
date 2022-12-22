@@ -1,5 +1,3 @@
-// 部署后配置服务器地址
-const ocrServer = "";
 
 chrome.contextMenus.create({
 		title: '识别验证码',
@@ -19,6 +17,13 @@ chrome.contextMenus.onClicked.addListener(function(item, tab) {
 
 function handleBase64(base64) {
 	console.log("handleBase64",base64)
+	// 部署后配置服务器地址, 记得修改 http://127.0.0.1:5000,也可通过插件进行配置地址
+	let ocrServer = localStorage["ocr_server"]? localStorage["ocr_server"]: "http://127.0.0.1:5000";
+	console.log("server",ocrServer)
+	if(!ocrServer.includes("http")) {
+		notification("服务设置错误", '错误')
+		return;
+	}
 	if(!base64) {
 		notification("图片转base64错误,请确认图片是否有跨域限制", '失败')
 	    return;
@@ -62,6 +67,7 @@ function notification(message, title = '') {
 		type: 'basic',
 		title,
 		message,
+		// contextMessage: '',
 		iconUrl: 'icon48.png',
 	})
 }
