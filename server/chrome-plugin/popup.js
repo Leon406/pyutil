@@ -27,3 +27,19 @@ function restore_options() {
 }
 
 window.addEventListener('load',  restore_options)
+
+ //监听整个页面的 paste 事件
+document.addEventListener('paste',function(e){
+	let clipboardData = e.clipboardData || window.clipboardData;
+	var type = clipboardData.items[0].type;
+	if(!clipboardData) return ;
+	
+	if (type.match(/image/)) {
+		var blob = clipboardData.items[0].getAsFile();
+		var file = new FileReader();
+		file.addEventListener('loadend', function(e){
+			chrome.runtime.sendMessage(e.target.result);
+		});
+		file.readAsDataURL(blob);
+	}
+})

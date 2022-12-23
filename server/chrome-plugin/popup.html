@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style type="text/css">
+         body {
+            width: 328px;
+            height: 376px;
+            overflow: hidden; /*or use overflow: scroll*/
+         }
+     </style>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<script type="text/javascript" src="popup.js">
+</script>
+</head>
+<body>
+ 
+<H1><FONT size=5>验证码识别1.3 by Leon406</FONT></H1>
+<div><FONT color=#0000ff size=3>右键图片识别：</FONT></div>
+<FONT color=#800fff size=2>
+<ol>
+  <li>配置OCR服务器(可选)</li>
+  <li>图片右键选择 "识别验证码"</li>
+  <li>粘贴到需要位置即可</li>
+</ol>
+</FONT>
+<div><FONT color=#0000ff size=3>剪切板识别：</FONT></div>
+<div>因安全限制,无法监听图片复制,和识别跨域图片,可用此方法</div>
+<FONT color=#800fff size=2>
+<ol>
+  <li>使用截图软件将图片保存到剪切板</li>
+  <li>或者在图片右键 "复制图片"</li>
+  <li>任意页面粘贴或者Ctrl+V</li>
+  <li>识别成功后,粘贴到需要位置即可</li>
+</ol>
+</FONT>
+<P><FONT color=#0000ff size=3>OCR 服务器配置(已默认个人服务器)：</FONT></P>
+
+<div>
+	<input id='ocrServerUrl'/>
+	<button id="btn">保存</button>
+</div>
+<br>
+<a href="https://github.com/Leon406/pyutil/tree/master/server"  target="_blank">服务器部署源码(ddddOcr)</a>&nbsp;&nbsp;
+<a href="https://github.com/Leon406/pyutil/tree/master/ocr"  target="_blank">服务器部署源码(muggleOcr)</a>
+
+
+<div id='status'/>
+</body>
+</html>
