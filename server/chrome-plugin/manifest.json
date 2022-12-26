@@ -1,7 +1,7 @@
 {
 	"name": "验证码识别",
 	"description": "服务器验证码识别 by leon406",
-	"version": "1.4",
+	"version": "1.5",
 	"manifest_version": 3,
 	"icons": {
 		"16": "icon16.png",
@@ -15,11 +15,11 @@
 	},
 	"background": {
 		"scripts" : [ "background.js" ]
-
 	},
 	"permissions": [
 		"notifications",
 		"contextMenus",
+		"storage",
 		"tabs"
 	],
 	"content_scripts": [
