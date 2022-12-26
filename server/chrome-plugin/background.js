@@ -6,14 +6,14 @@ chrome.contextMenus.create({
     contexts: ['image'],
     onclick: function (item, tab) {
         chrome.tabs.sendMessage(tab.id, item, function (base64) {
-            handleBase64(base64);
+            handleBase64(base64,item.srcUrl);
             console.log(arguments, chrome.runtime.lastError);
         });
     }
 });
 
 
-function handleBase64(base64) {
+function handleBase64(base64,fallbackUrl) {
     console.log("handleBase64", base64)
     //todo 部署后配置默认服务器地址,也可手动设置 修改 "http://127.0.0.1:5000"为默认服务器地址
     let ocrServer = localStorage["ocr_server"] ? localStorage["ocr_server"] : "http://127.0.0.1:5000";
@@ -22,10 +22,10 @@ function handleBase64(base64) {
         notification("服务设置错误", '错误')
         return;
     }
-    if (!base64) {
-        notification("图片转base64错误,请确认图片是否有跨域限制", '失败')
-        return;
-    }
+	
+
+    !base64&&console.log("图片转base64错误,请确认图片是否有跨域限制");
+    
     return fetch(ocrServer + "/ocr", {
         "headers": {
             "accept": "application/json, text/javascript, */*; q=0.01",
@@ -33,7 +33,7 @@ function handleBase64(base64) {
             "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
             "x-requested-with": "XMLHttpRequest"
         },
-        "body": "base64=" + encodeURIComponent(base64),
+        "body": base64? ( "base64=" + encodeURIComponent(base64)) :("url=" +fallbackUrl),
         "method": "POST"
     })
 
