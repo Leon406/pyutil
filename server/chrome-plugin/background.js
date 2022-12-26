@@ -1,4 +1,4 @@
-//todo 部署后配置默认服务器地址,也可手动设置 修改 "http://127.0.0.1:5000"为默认服务器地址
+// 部署后配置默认服务器地址,也可手动设置 修改 "http://127.0.0.1:5000"为默认服务器地址
 const default_server = "http://127.0.0.1:5000"
 
 chrome.contextMenus.create({
@@ -10,19 +10,31 @@ chrome.contextMenus.create({
 
 // 兼容MV3
 chrome.contextMenus.onClicked.addListener(function (item, tab) {
-    chrome.tabs.sendMessage(tab.id, item, function (base64) {
+    chrome.tabs.sendMessage(tab.id, {"type": "base64", data: item}, function (base64) {
         handleBase64(base64, item.srcUrl);
         console.log(arguments, chrome.runtime.lastError);
     });
 });
 
+
+//background.js添加监听，并把结果反馈给浏览器页面console显示。
+chrome.runtime.onMessage.addListener(function (request) {
+    console.log(request);
+    if (request.startsWith("data:image/")) {
+        handleBase64(request);
+    } else if (request.startsWith("http")) {
+        handleBase64(undefined, request);
+    }
+});
+
+// 在后台请求没有跨域问题
 function handleBase64(base64, url) {
     console.log("handleBase64", base64)
     chrome.storage.sync.get({"ocr_server": default_server}, function (config) {
         let ocrServer = config["ocr_server"]
         console.log("server", ocrServer)
         if (!ocrServer.includes("http")) {
-            notification("服务设置错误", '错误')
+            toast("错误: 服务设置错误")
             return;
         }
 
@@ -43,41 +55,35 @@ function handleBase64(base64, url) {
                 console.log(res)
                 if (res.status) {
                     copy(res.result, 'text/plain')
-                    notification(`验证码: ${res.result} ,如未复制到粘贴板请手动填写`, '成功')
+                    toast(`验证码: ${res.result} ,如未复制到粘贴板请手动填写`, '成功')
                 } else {
-                    notification(res.msg, '失败')
+                    toast("解析错误: " +res.msg)
                 }
             })
             .catch(error => {
-                notification(error.toString() + "\n请确认设置的服务是否有效!", '请求失败')
+                toast('请求失败: '+error.toString() + "\n请确认设置的服务是否有效!", )
             })
     })
 }
 
-function copy(str, mimeType) {
-    document.oncopy = function (event) {
-        event.clipboardData.setData(mimeType, str);
-        event.preventDefault();
-    };
-    document.execCommand("copy", false, null);
+function copy(text, mimeType) {
+    chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+            "type": "copy", data: {text, mimeType}
+        }, function () {
+            console.log(arguments, chrome.runtime.lastError);
+        });
+    });
 }
 
-function notification(message, title = '') {
-    chrome.notifications.create(null, {
-        type: 'basic',
-        title,
-        message,
-        iconUrl: 'icon48.png',
-    })
+function toast(message) {
+    chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+            "type": "notice", data: {message}
+        }, function () {
+            console.log(arguments, chrome.runtime.lastError);
+        });
+    });
 }
 
 
-//background.js添加监听，并把结果反馈给浏览器页面console显示。
-chrome.runtime.onMessage.addListener(function (request) {
-    console.log(request);
-    if (request.startsWith("data:image/")) {
-        handleBase64(request);
-    } else if (request.startsWith("http")) {
-        handleBase64(undefined, request);
-    }
-});
