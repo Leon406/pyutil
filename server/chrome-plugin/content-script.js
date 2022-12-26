@@ -1,16 +1,29 @@
 // 监听 background 传来的数据 可对页面dom操作
 chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
     console.log("receive from background: ", data);
+
     if (data.type === "copy") {
         copy(data.data.text, data.data.mimeType)
     } else if (data.type === "notice") {
         toast(data.data.message)
     } else if (data.type === "base64") {
         sendResponse(drawBase64Image(getImg(data.data.srcUrl)));
+    } else if (data.type === "autofill") {
+        parse_config(data.data)
     }
 });
 
+chrome.storage.sync.get({"rule": ""}, function (config) {
+    parse_config(config.rule)
+})
 function copy(str, mimeType) {
+    let config = fill_config[location.host];
+    if (config) {
+        let ele = find_element(config.selector, config.index)
+        if (ele) {
+            ele.value = str
+        }
+    }
     document.oncopy = function (event) {
         event.clipboardData.setData(mimeType, str);
         event.preventDefault();
@@ -49,7 +62,7 @@ function drawBase64Image(img) {
     let dataURL;
     try {
         dataURL = canvas.toDataURL('image/');
-        console.log("dataURL", dataURL)
+        // console.log("dataURL", dataURL)
     } catch (e) {
         console.info(e);
     }
@@ -90,3 +103,29 @@ document.addEventListener('copy', function (e) {
         }
     })
 })
+
+function find_element(selector, index) {
+    return document.querySelectorAll(selector)[index];
+}
+
+let fill_config = {}
+
+// "domain,selector[,index]"
+function parse_config(config) {
+    console.log("解析规则:",config)
+    fill_config = {}
+    let items = config.split(";")
+    console.log("解析规则 items:",items)
+    for (let i = 0; i <items.length;i++) {
+        let info = items[i].split(",");
+        console.log("解析规则 info:",items[i],info)
+        if (info.length >= 2) {
+            let selector = info[1]
+            let index = info.length === 3 ? info[2] : 0
+            fill_config[info[0]] = {selector, index}
+        }else {
+            console.log("配置错误:", items[i])
+        }
+    }
+    console.log("解析结束:",fill_config)
+}

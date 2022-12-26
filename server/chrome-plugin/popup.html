@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-  <style type="text/css">
+  <style>
          body {
             width: 328px;
-            height: 360px;
+            height: 506px;
             overflow: hidden; /*or use overflow: scroll*/
+         }
+         .title {
+             color: #0000ff;
+             font-size: 16px;
+         }
+         .content {
+             color: #800fff;
+             font-size: 14px;
          }
      </style>
     <meta charset="UTF-8">
@@ -15,33 +23,41 @@
 </head>
 <body>
  
-<h1><font size=5>验证码识别1.6 by Leon406</font></h1>
-<div><font color=#0000ff size=3>右键图片识别(支持跨域)：</font></div>
-<font color=#800fff size=2>
-<ol>
+<h1>验证码识别 by Leon406</h1>
+<div class="title">右键图片识别(支持跨域)：</div>
+<ol class="content">
   <li>配置OCR服务器(可选)</li>
   <li>图片右键选择 "识别验证码"</li>
   <li>粘贴或者Ctrl+V到需要位置</li>
 </ol>
-</font>
-<div><font color=#0000ff size=3>剪切板识别：</font></div>
+
+<div class="title">剪切板识别：</div>
 <div>适用浏览器之外的图片,或者动态gif验证码</div>
-<font color=#800fff size=2>
-<ol>
+
+<ol class="content">
   <li>使用截图软件将图片保存到剪切板</li>
   <li>任意页面粘贴或者Ctrl+V</li>
   <li>识别成功后,粘贴或者Ctrl+V到需要位置</li>
 </ol>
-</font>
-<div><font color=#0000ff size=3>复制链接识别</font> <input type="checkbox" id="copy_uri_reco" />启用</div>
 
-<P><font color=#0000ff size=3>OCR 服务器配置(已默认个人服务器)：</font></P>
+<div class="title">复制图片链接时识别 <input type="checkbox" id="copy_uri_reco" />启用</div>
+
+<br/>
+<div class="title"> OCR 服务器配置(已默认个人服务器)：</div>
 
 <div>
 	<input id='ocrServerUrl'/>
 	<button id="btn">保存</button>
 </div>
-<br>
+<br/>
+<div class="title">自动填写验证码配置：</div>
+<div>格式: <b>host,selector<i>[,index]</i> </b>&nbsp;&nbsp;其中host=location.href<br>多个用<b>;</b>分割 如 "baidu.com,input,2;google.com,input#id"</div>
+<br/>
+<div>
+	<input id='rule'/>
+	<button id="btn_rule">保存</button>
+</div>
+<br/>
 <a href="https://github.com/Leon406/pyutil/tree/master/server"  target="_blank">服务器部署源码(ddddOcr)</a>&nbsp;&nbsp;
 <a href="https://github.com/Leon406/pyutil/tree/master/ocr"  target="_blank">服务器部署源码(muggleOcr)</a>
 

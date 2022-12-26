@@ -1,4 +1,4 @@
-function save_options() {
+function save_server_config() {
     let ele = document.getElementById("ocrServerUrl");
     let hint = "保存成功!";
     if (ele.value.includes("http")) {
@@ -15,8 +15,28 @@ function save_options() {
     }, 750);
 }
 
+function sendMessage(data) {
+    chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, data, function () {
+            console.log(arguments, chrome.runtime.lastError);
+        });
+    });
+}
+function save_rule() {
+    let ele = document.getElementById("rule");
+    let hint = "保存规则成功!";
+    chrome.storage.sync.set({"rule": ele.value});
+
+    sendMessage({"type": "rule", data: ele.value});
+    // Update status to let user know options were saved.
+    let status = document.getElementById("status");
+    status.innerHTML = hint;
+    setTimeout(function () {
+        status.innerHTML = "";
+    }, 750);
+}
 function restore_options() {
-    document.getElementById("btn").addEventListener('click', save_options);
+    document.getElementById("btn").addEventListener('click', save_server_config);
     let ele = document.getElementById("ocrServerUrl");
     chrome.storage.sync.get({"ocr_server": ""}, function (config) {
         let server = config.ocr_server
@@ -25,6 +45,13 @@ function restore_options() {
         }
         ele.value = server
     })
+
+    let ele_rule = document.getElementById("rule");
+    chrome.storage.sync.get({"rule": ""}, function (config) {
+        ele_rule.value = config.rule
+    })
+    document.getElementById("btn_rule").addEventListener('click', save_rule);
+
 
     let checkbox = document.getElementById("copy_uri_reco");
     chrome.storage.sync.get({"copy_reco": false}, function (config) {
