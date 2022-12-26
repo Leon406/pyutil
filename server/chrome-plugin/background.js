@@ -73,7 +73,7 @@ function notification(message, title = '') {
 
 
 //background.js添加监听，并把结果反馈给浏览器页面console显示。
-chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+chrome.runtime.onMessage.addListener(function (request) {
     console.log(request);
     if (request.startsWith("data:image/")) {
         handleBase64(request);

@@ -10,12 +10,12 @@ function getImg(url) {
 
 function drawBase64Image(img) {
     console.log("drawBase64Image", img)
-    var canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
-    var ctx = canvas.getContext('2d');
+    let ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, img.width, img.height);
-    var dataURL;
+    let dataURL;
     try {
         dataURL = canvas.toDataURL('image/');
         console.log("dataURL", dataURL)
@@ -30,10 +30,10 @@ function drawBase64Image(img) {
 document.addEventListener('paste', function (e) {
     let clipboardData = e.clipboardData || window.clipboardData;
     if (!clipboardData) return;
-    var type = clipboardData.items[0] && clipboardData.items[0].type;
+    let type = clipboardData.items[0] && clipboardData.items[0].type;
     if (type && type.match(/image/)) {
-        var blob = clipboardData.items[0].getAsFile();
-        var file = new FileReader();
+        let blob = clipboardData.items[0].getAsFile();
+        let file = new FileReader();
         file.addEventListener('loadend', function (e) {
             chrome.runtime.sendMessage(e.target.result);
         });
