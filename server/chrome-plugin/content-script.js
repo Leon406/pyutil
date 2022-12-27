@@ -2,20 +2,38 @@
 chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
     console.log("receive from background: ", data);
 
-    if (data.type === "copy") {
-        copy(data.data.text, data.data.mimeType)
-    } else if (data.type === "notice") {
-        toast(data.data.message)
-    } else if (data.type === "base64") {
-        sendResponse(drawBase64Image(getImg(data.data.srcUrl)));
-    } else if (data.type === "autofill") {
-        parse_config(data.data)
+    switch (data.type) {
+        case "copy":
+            copy(data.data.text, data.data.mimeType)
+            break;
+        case "notice":
+            toast(data.data.message)
+            break;
+        case "base64":
+            sendResponse(drawBase64Image(getImg(data.data.srcUrl)));
+            break;
+        case "rule":
+            parse_config(data.data)
+            break;
+        case "free_edit":
+            free_edit()
+            break;
+        case "copy_cookie":
+            copy_cookie()
+            break;
+        case "remove_restrict":
+            remove_restrict()
+            break;
+        default:
+            console.log("error type")
     }
 });
+
 
 chrome.storage.sync.get({"rule": ""}, function (config) {
     parse_config(config.rule)
 })
+
 function copy(str, mimeType) {
     let config = fill_config[location.host];
     if (config) {
@@ -112,20 +130,49 @@ let fill_config = {}
 
 // "domain,selector[,index]"
 function parse_config(config) {
-    console.log("解析规则:",config)
+    console.log("解析规则:", config)
     fill_config = {}
     let items = config.split(";")
-    console.log("解析规则 items:",items)
-    for (let i = 0; i <items.length;i++) {
+    console.log("解析规则 items:", items)
+    for (let i = 0; i < items.length; i++) {
         let info = items[i].split(",");
-        console.log("解析规则 info:",items[i],info)
+        console.log("解析规则 info:", items[i], info)
         if (info.length >= 2) {
             let selector = info[1]
             let index = info.length === 3 ? info[2] : 0
             fill_config[info[0]] = {selector, index}
-        }else {
+        } else {
             console.log("配置错误:", items[i])
         }
     }
-    console.log("解析结束:",fill_config)
+    console.log("解析结束:", fill_config)
+}
+
+function free_edit() {
+    "true" === document.body.getAttribute("contenteditable") ? (
+            document.body.setAttribute("contenteditable", !1), alert("网页不能编辑啦！"))
+        : (document.body.setAttribute("contenteditable", !0), alert("网页可以编辑啦！"))
+}
+
+function remove_restrict() {
+    let t = function (t) {
+        t.stopPropagation(),
+        t.stopImmediatePropagation && t.stopImmediatePropagation()
+    };
+    ["copy", "cut", "contextmenu", "selectstart", "mousedown", "mouseup", "keydown", "keypress", "keyup"]
+        .forEach(function (e) {
+            document.documentElement.addEventListener(e, t, {capture: !0})
+        }), alert("解除限制成功啦！")
+}
+
+function copy_cookie() {
+    let oInput = document.createElement('input');
+    oInput.value = document.cookie;
+    document.body.appendChild(oInput);
+    oInput.select();
+    document.execCommand("Copy");
+    oInput.className = 'oInput';
+    oInput.style.display = 'none';
+    alert('复制成功');
+
 }

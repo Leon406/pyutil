@@ -1,7 +1,7 @@
 {
 	"name": "验证码识别 Pro",
 	"description": "服务器验证码识别 powered by leon406,支持右键识别验证码,剪切板图片识别,复制时识别图片url,自动填写,可配置ocr服务器",
-	"version": "1.7",
+	"version": "1.8",
 	"manifest_version": 3,
 	"icons": {
 		"16": "icon16.png",

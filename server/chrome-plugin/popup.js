@@ -22,6 +22,7 @@ function sendMessage(data) {
         });
     });
 }
+
 function save_rule() {
     let ele = document.getElementById("rule");
     let hint = "保存规则成功!";
@@ -35,6 +36,7 @@ function save_rule() {
         status.innerHTML = "";
     }, 750);
 }
+
 function restore_options() {
     document.getElementById("btn").addEventListener('click', save_server_config);
     let ele = document.getElementById("ocrServerUrl");
@@ -51,6 +53,16 @@ function restore_options() {
         ele_rule.value = config.rule
     })
     document.getElementById("btn_rule").addEventListener('click', save_rule);
+
+    document.getElementById("btn_cookie").addEventListener('click', function () {
+        sendMessage({"type": "copy_cookie"});
+    });
+    document.getElementById("btn_remove_restrict").addEventListener('click', function () {
+        sendMessage({"type": "remove_restrict"});
+    });
+    document.getElementById("btn_free_edit").addEventListener('click', function () {
+        sendMessage({"type": "free_edit"});
+    });
 
 
     let checkbox = document.getElementById("copy_uri_reco");
