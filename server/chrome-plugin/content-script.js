@@ -10,7 +10,13 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
             toast(data.data.message)
             break;
         case "base64":
-            sendResponse(drawBase64Image(getImg(data.data.srcUrl) || getImgFromIFrame(data.data.srcUrl)));
+            let img = getImg(data.data.srcUrl) || getImgFromIFrame(data.data.srcUrl);
+            // 限制验证码图片高度, 防止滥用
+            if (img.height > 200) {
+                toast("你确定这是验证码?")
+            }else {
+                sendResponse(drawBase64Image(img));
+            }
             break;
         case "rule":
             parse_config(data.data)
@@ -290,7 +296,6 @@ window.onload = function () {
                         toast("请求验证码图片失败: ", error)
                     })
             }
-
         }
     )
 }
