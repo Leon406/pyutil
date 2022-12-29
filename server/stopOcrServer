@@ -1,0 +1,7 @@
+pIdArr=$(ps -ef | grep OcrServer | grep -v "grep" | awk '{print $2}')
+
+# 2、遍历kill进程们
+for pId in ${pIdArr}; do
+  kill -9 ${pId}
+  echo "进程：${pId} 被kill"
+done

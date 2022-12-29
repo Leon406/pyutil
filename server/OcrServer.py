@@ -1,7 +1,13 @@
-import ddddocr, time, json, threading, configparser, os
-from flask import Flask, request
 import platform
+
+import configparser
+import ddddocr
+import json
+import os
 import requests
+import threading
+import time
+from flask import Flask, request
 
 # ImportError: libGL.so 解决方案  https://www.cnblogs.com/mrneojeep/p/16252044.html
 # ubuntu
@@ -18,12 +24,15 @@ app = Flask(__name__)
 
 ddddocr_list = []
 ddddocr_state = []
-users = {}
-restrict_users = {}
+USERS = {}
+RESTRICT_USERS = {}
 black_users = set()
 SERVER_IP = "127.0.0.1"
-RATE_TIME = 120
-RATE_LIMIT = RATE_TIME / 10
+black_users.add(SERVER_IP)
+RATE_TIME = 3600
+global RATE_LIMIT
+global BLACK_OVER_LIMIT
+RATE_LIMIT = RATE_TIME / 60
 BLACK_OVER_LIMIT = RATE_LIMIT
 
 
@@ -52,25 +61,22 @@ def destroy_ddddocr(i):
 
 
 def check_limit(ip):
-    if SERVER_IP == ip:
-        print(SERVER_IP, ip, SERVER_IP == ip)
-
-    if ip in users:
-        user = users[ip]
-        print("current %s" % user)
+    if ip in USERS and SERVER_IP != ip:
+        current_user = USERS[ip]
+        print("current %s" % current_user)
         if ip in black_users:
             raise Exception("You request too much, and now in blacklist!!!")
-        if time.time() - user["time"] < RATE_TIME:
-            if user["count"] < RATE_LIMIT:
-                user["count"] += 1
+        if time.time() - current_user["time"] < RATE_TIME:
+            if current_user["count"] < RATE_LIMIT:
+                current_user["count"] += 1
             else:
                 print("black ip %s" % ip)
-                if ip in restrict_users:
-                    restrict_users[ip] = restrict_users[ip] + 1
+                if ip in RESTRICT_USERS:
+                    RESTRICT_USERS[ip] = RESTRICT_USERS[ip] + 1
                 else:
-                    restrict_users[ip] = 1
-                print("black  %s" % restrict_users)
-                if restrict_users[ip] > BLACK_OVER_LIMIT:
+                    RESTRICT_USERS[ip] = 1
+                print("black  %s" % RESTRICT_USERS)
+                if RESTRICT_USERS[ip] > BLACK_OVER_LIMIT:
                     black_users.add(ip)
                 raise Exception("request limit!!! Try again in %s min" % int(RATE_TIME / 60))
         else:
@@ -80,19 +86,24 @@ def check_limit(ip):
 
 
 def reset_limit(ip):
-    users[ip] = {
+    USERS[ip] = {
         "time": time.time(),
-        "count": 1,
+        "count": 0,
     }
-    if ip in restrict_users:
-        restrict_users.pop(ip)
-    print("users %s %s" % (ip, users))
+    if ip in RESTRICT_USERS:
+        RESTRICT_USERS.pop(ip)
+    print("users %s %s" % (ip, USERS))
 
 
 # 支持 参数 url, base64,file
 @app.route('/ocr', methods=['POST'])
 def ocr():
     try:
+        if "x-requested-with" not in request.headers and "X-Requested-With" not in request.headers:
+            return json.dumps({'code': False, 'msg': '请求错误'})
+        xrw = request.headers.getlist("x-requested-with") or request.headers.getlist("X-Requested-With")
+        if xrw[0] != "XMLHttpRequest":
+            return json.dumps({'code': False, 'msg': 'error'})
         ip = parse_ip(request)
         check_limit(ip)
         if "base64" in request.form:
@@ -118,22 +129,43 @@ def ocr():
 
 @app.route('/unlock/<unlock_ip>', methods=['PUT'])
 def unlock(unlock_ip):
-    print("unlock_ip", unlock_ip)
+    print(f"unlock_ip {unlock_ip}")
     ip = parse_ip(request)
-    print("unlock black %s" % restrict_users)
-    if ip in black_users:
-        black_users.remove(ip)
-    reset_limit(ip)
-    print("after unlock black %s" % restrict_users)
-    return json.dumps({'status': True, 'msg': "unlock success", 'ip': ip})
+    print("unlock", ip == SERVER_IP, unlock_ip in black_users)
+    if ip == SERVER_IP and unlock_ip in black_users:
+        black_users.remove(unlock_ip)
+        reset_limit(unlock_ip)
+        print("after unlock black %s" % RESTRICT_USERS)
+        return json.dumps({'status': True, 'msg': "unlock success", 'ip': ip})
+    else:
+        return json.dumps({'status': False, 'msg': "Server Error!", 'ip': ip})
+
+
+@app.route('/rate/<rate_count>', methods=['PUT'])
+def rate(rate_count):
+    ip = parse_ip(request)
+    rate_count = int(rate_count)
+    if rate_count < 0:
+        return json.dumps({'status': False, 'msg': "wrong rate", 'ip': ip})
+    else:
+        global RATE_LIMIT
+        # 不限制,
+        if rate_count == 0:
+            rate_count = RATE_TIME * 10
+        if ip == SERVER_IP and rate_count != RATE_LIMIT:
+            print(f"old= {RATE_LIMIT}, new= {rate_count}")
+            RATE_LIMIT = rate_count
+            return json.dumps({'status': True, 'msg': "success", 'ip': ip, 'rate': RATE_LIMIT})
+        else:
+            return json.dumps({'status': False, 'msg': "sever error", 'ip': ip, 'rate': RATE_LIMIT})
 
 
 @app.route('/users', methods=['GET'])
 def user():
     return json.dumps({'status': True,
                        'msg': "Success",
-                       'user': users,
-                       'restrict': restrict_users,
+                       'user': USERS,
+                       'restrict': RESTRICT_USERS,
                        'black': list(black_users)})
 
 
@@ -148,13 +180,13 @@ def classify(content, ip):
     destroy_ddddocr(i)
     print("线程", i, "已释放")
     return json.dumps({'status': True, 'msg': 'SUCCESS', 'result': data, 'usage': end - start, 'ip': ip,
-                       'remain': RATE_LIMIT - users[ip]["count"]})
+                       'remain': RATE_LIMIT - USERS[ip]["count"]})
 
 
 def parse_ip(req):
-    ip = request.remote_addr
-    if "X-Forwarded-For" in request.headers:
-        ip = request.headers.getlist("X-Forwarded-For")[0]
+    ip = req.remote_addr
+    if "X-Forwarded-For" in req.headers:
+        ip = req.headers.getlist("X-Forwarded-For")[0]
     return ip
 
 
