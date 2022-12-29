@@ -1,12 +1,12 @@
-import platform
-
 import configparser
-import ddddocr
 import json
 import os
-import requests
+import platform
 import threading
 import time
+
+import ddddocr
+import requests
 from flask import Flask, request
 
 # ImportError: libGL.so 解决方案  https://www.cnblogs.com/mrneojeep/p/16252044.html
@@ -111,7 +111,23 @@ def ocr():
             b64 = b64[b64.find(',') + 1:]
             return classify(b64, ip)
         if "url" in request.form:
-            return classify(requests.get(request.form['url']).content, ip)
+            pre_request = requests.head(request.form['url'])
+            length = 0
+            if "Content-Length" in pre_request.headers:
+                length = pre_request.headers["Content-Length"]
+            elif "content-length" in pre_request.headers:
+                length = pre_request.headers["content-length"]
+
+            # 校验图片大小
+            if length:
+                if int(length) < 64 * 1024:
+                    return classify(requests.get(request.form['url']).content, ip)
+                else:
+                    return json.dumps({'code': False, 'msg': '文件大于64k'})
+            else:
+                return classify(requests.get(request.form['url']).content, ip)
+
+
         file = request.files['file']
         if file:
             filename = file.filename

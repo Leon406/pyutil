@@ -10,10 +10,22 @@ chrome.contextMenus.create({
 
 // 兼容MV3
 chrome.contextMenus.onClicked.addListener(function (item, tab) {
-    chrome.tabs.sendMessage(tab.id, {"type": "base64", data: item}, function (base64) {
-        handleBase64(base64, item.srcUrl);
-        console.log(arguments, chrome.runtime.lastError);
-    });
+    if (item.srcUrl.startsWith("data:image/")) {
+        console.log("background: 识别data:image/ 大小", item.srcUrl.length)
+        handleBase64(item.srcUrl.replaceAll("\n", "").replaceAll("%0D%0A", ""));
+    } else {
+        if (new URL(item.pageUrl).host === new URL(item.srcUrl).host) {
+            console.log("background: 同源url ", item.srcUrl)
+            chrome.tabs.sendMessage(tab.id, {"type": "base64", data: item}, function (base64) {
+                handleBase64(base64, item.srcUrl);
+                console.log(arguments, chrome.runtime.lastError);
+            });
+        } else {
+            console.log("background: 跨域url ", item.srcUrl)
+            handleBase64(undefined, item.srcUrl);
+        }
+
+    }
 });
 
 
@@ -29,10 +41,9 @@ chrome.runtime.onMessage.addListener(function (request) {
 
 // 在后台请求没有跨域问题
 function handleBase64(base64, url) {
-    console.log("handleBase64", base64)
+    console.log("handleBase64", base64,url)
     chrome.storage.sync.get({"ocr_server": default_server}, function (config) {
         let ocrServer = config["ocr_server"]
-        console.log("server", ocrServer)
         if (!ocrServer.includes("http")) {
             toast("错误: 服务设置错误")
             return;
@@ -57,11 +68,11 @@ function handleBase64(base64, url) {
                     copy(res.result, 'text/plain')
                     toast(`验证码: ${res.result} ,如未复制到粘贴板请手动填写`, '成功')
                 } else {
-                    toast("解析错误: " +res.msg)
+                    toast("解析错误: " + res.msg)
                 }
             })
             .catch(error => {
-                toast('请求失败: '+error.toString() + "\n请确认设置的服务是否有效!", )
+                toast('请求失败: ' + error.toString() + "\n请确认设置的服务是否有效!",)
             })
     })
 }

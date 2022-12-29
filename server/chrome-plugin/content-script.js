@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
             toast(data.data.message)
             break;
         case "base64":
-            sendResponse(drawBase64Image(getImg(data.data.srcUrl)));
+            sendResponse(drawBase64Image(getImg(data.data.srcUrl) || getImgFromIFrame(data.data.srcUrl)));
             break;
         case "rule":
             parse_config(data.data)
@@ -34,13 +34,37 @@ chrome.storage.sync.get({"rule": ""}, function (config) {
     parse_config(config.rule)
 })
 
+let delay = 200
+let last_time = 0
+
+function img_click(event) {
+    let now = Date.now();
+    if (now - last_time < 2000) {
+        toast("请勿频繁点击", 1500)
+        return
+    }
+    last_time = now;
+    console.log("img click", event.path[0], delay)
+    // 等待页面刷新后再转base64,否者会白屏
+    setTimeout(function () {
+        chrome.runtime.sendMessage(drawBase64Image(event.path[0]));
+    }, delay)
+
+}
+
 function copy(str, mimeType) {
     let config = fill_config[location.host];
+    // 无内容适当调整延迟
+    if (!str) {
+        delay = Math.min(delay * 1.2, 2000)
+    }
     if (config) {
         let ele = find_element(config.selector, config.index)
         if (ele) {
             ele.value = str
         }
+    } else {
+        auto_detect_and_fill(str)
     }
     document.oncopy = function (event) {
         event.clipboardData.setData(mimeType, str);
@@ -48,6 +72,49 @@ function copy(str, mimeType) {
     };
     document.execCommand("copy", false, str);
 }
+
+function auto_detect_and_fill(code) {
+    let verification_code_ele = Array.from(document.getElementsByTagName("input")).filter(el =>
+            el.type !== 'hidden' && (
+                find_attribute(el, "data-msg-required")
+                || find_attribute(el)
+                || find_attribute(el, "tip")
+                || find_attribute(el, "id", "verify")
+                || find_attribute(el, "id", "validate")
+                || find_attribute(el, "alt", "kaptcha")
+            )
+    )[0];
+    if (verification_code_ele) {
+        verification_code_ele.value = code
+        window.setTimeout(function () {
+            verification_code_ele.focus()
+        }, 200);
+    }
+}
+
+
+// 获取placeholder="验证码" ,  alt="kaptcha"
+function find_attribute(element, attr = "placeholder", val = "验证码", eq = false) {
+    let elementKeys = element.attributes;
+    if (elementKeys == null) {
+        return false;
+    }
+    for (let i = 0; i < elementKeys.length; i++) {
+        let key = elementKeys[i].name.toLowerCase();
+        if (typeof val === "string") {
+            if (key === attr && (eq ? elementKeys[attr].value === val : elementKeys[attr].value.includes(val))) {
+                return true;
+            }
+        } else {
+            if (key === attr && (eq ? val.test(elementKeys[attr].value) : val.exec(elementKeys[attr].value))) {
+                return true;
+            }
+            val.exec()
+        }
+    }
+    return false;
+}
+
 
 function toast(msg, duration) {
     duration = isNaN(duration) ? 2000 : duration;
@@ -66,12 +133,27 @@ function toast(msg, duration) {
 }
 
 
-function getImg(url) {
-    return Array.from(document.getElementsByTagName("img")).filter(el => el.src.includes(url))[0];
+function getImgFromIFrame(url) {
+    let elements = Array.from(document.querySelectorAll("iframe"))
+        .map(el => getImg(url, el.contentDocument))
+        .filter(el => el);
+    return elements && elements[0];
+}
+
+function getImg(url, doc = document) {
+    let elements = Array.from(doc.getElementsByTagName("img")).filter(el => el.src.includes(url));
+    return elements && elements[0];
 }
 
 function drawBase64Image(img) {
     console.log("drawBase64Image", img)
+    if (img) {
+        if (!Array.from(very_code_nodes).includes(img)) {
+            console.log("add nodes", img)
+            very_code_nodes.push(img)
+            img.addEventListener('click', img_click);
+        }
+    }
     let canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
@@ -79,10 +161,16 @@ function drawBase64Image(img) {
     ctx.drawImage(img, 0, 0, img.width, img.height);
     let dataURL;
     try {
-        dataURL = canvas.toDataURL('image/');
+        dataURL = canvas.toDataURL('image/webp');
         // console.log("dataURL", dataURL)
     } catch (e) {
-        console.info(e);
+        console.info("drawBase64Image to webp", e);
+        // 不支持webp时,转jpeg
+        try {
+            dataURL = canvas.toDataURL('image/jpeg');
+        } catch (e2) {
+            console.info("drawBase64Image to jpeg", e2);
+        }
     }
     return dataURL;
 }
@@ -174,5 +262,35 @@ function copy_cookie() {
     oInput.className = 'oInput';
     oInput.style.display = 'none';
     alert('复制成功');
+}
 
+const very_code_nodes = []
+
+window.onload = function () {
+    let verifycode_ele = Array.from(document.getElementsByTagName("img")).filter(el =>
+        find_attribute(el, "alt", "图片刷新") ||
+        find_attribute(el, "src", /Validate|captcha|login-code-img/gi) ||
+        find_attribute(el, "class", /login-code/gi)
+    )
+    console.log("_______loaded_____ find", verifycode_ele)
+    very_code_nodes.push(verifycode_ele)
+    verifycode_ele.forEach(el => {
+            very_code_nodes.push(el)
+            el.addEventListener('click', img_click)
+            console.log("_______add click_____", el)
+            let start = Date.now()
+            if (el.src.startsWith("http")) {
+                fetch(el.src)
+                    .then(res => {
+                        console.log(res)
+                        delay = Math.min(Math.max((Date.now() - start) * 1.2, delay), 2000)
+                        console.log("_______重设图片刷新延迟____", delay)
+                    })
+                    .catch(error => {
+                        toast("请求验证码图片失败: ", error)
+                    })
+            }
+
+        }
+    )
 }

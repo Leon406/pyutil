@@ -28,7 +28,6 @@
 <ol class="content">
   <li>配置OCR服务器(可选)</li>
   <li>图片右键选择 "识别验证码"</li>
-  <li>粘贴或者Ctrl+V到需要位置</li>
 </ol>
 
 <div class="title">剪切板识别：</div>
@@ -36,8 +35,7 @@
 
 <ol class="content">
   <li>使用截图软件将图片保存到剪切板</li>
-  <li>任意页面粘贴或者Ctrl+V</li>
-  <li>识别成功后,粘贴或者Ctrl+V到需要位置</li>
+  <li>任意页面粘贴或者Ctrl+V识别</li>
 </ol>
 
 <div class="title">复制图片链接时识别 <input type="checkbox" id="copy_uri_reco" />启用</div>
@@ -50,7 +48,8 @@
 	<button id="btn">保存</button>
 </div>
 <br/>
-<div class="title">自动填写验证码配置：</div>
+<div class="content">若不自动填写,请手动粘贴,也可进行手动配置</div>
+<div class="title">自动填写配置：</div>
 <div>格式: <b>host,selector<i>[,index]</i> </b>&nbsp;&nbsp;其中host=location.href<br>多个用<b>;</b>分割 如 "baidu.com,input,2;google.com,input#id"</div>
 <br/>
 <div>
