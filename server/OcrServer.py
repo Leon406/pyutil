@@ -21,6 +21,7 @@ ddddocr_state = []
 users = {}
 restrict_users = {}
 black_users = set()
+SERVER_IP = "127.0.0.1"
 RATE_TIME = 120
 RATE_LIMIT = RATE_TIME / 10
 BLACK_OVER_LIMIT = RATE_LIMIT
@@ -51,6 +52,9 @@ def destroy_ddddocr(i):
 
 
 def check_limit(ip):
+    if SERVER_IP == ip:
+        print(SERVER_IP, ip, SERVER_IP == ip)
+
     if ip in users:
         user = users[ip]
         print("current %s" % user)
@@ -89,9 +93,7 @@ def reset_limit(ip):
 @app.route('/ocr', methods=['POST'])
 def ocr():
     try:
-        ip = request.remote_addr
-        if "X-Forwarded-For" in request.headers:
-            ip = request.headers.getlist("X-Forwarded-For")[0]
+        ip = parse_ip(request)
         check_limit(ip)
         if "base64" in request.form:
             b64 = request.form['base64']
@@ -114,11 +116,10 @@ def ocr():
         return json.dumps({'status': False, 'msg': str(e)})
 
 
-@app.route('/unlock', methods=['GET'])
-def unlock():
-    ip = request.remote_addr
-    if "X-Forwarded-For" in request.headers:
-        ip = request.headers.getlist("X-Forwarded-For")[0]
+@app.route('/unlock/<unlock_ip>', methods=['PUT'])
+def unlock(unlock_ip):
+    print("unlock_ip", unlock_ip)
+    ip = parse_ip(request)
     print("unlock black %s" % restrict_users)
     if ip in black_users:
         black_users.remove(ip)
@@ -127,7 +128,7 @@ def unlock():
     return json.dumps({'status': True, 'msg': "unlock success", 'ip': ip})
 
 
-@app.route('/user', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def user():
     return json.dumps({'status': True,
                        'msg': "Success",
@@ -148,6 +149,13 @@ def classify(content, ip):
     print("线程", i, "已释放")
     return json.dumps({'status': True, 'msg': 'SUCCESS', 'result': data, 'usage': end - start, 'ip': ip,
                        'remain': RATE_LIMIT - users[ip]["count"]})
+
+
+def parse_ip(req):
+    ip = request.remote_addr
+    if "X-Forwarded-For" in request.headers:
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+    return ip
 
 
 if __name__ == '__main__':
