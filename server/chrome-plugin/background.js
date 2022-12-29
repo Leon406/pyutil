@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(function (request) {
 function handleBase64(base64, url) {
     console.log("handleBase64", base64,url)
     chrome.storage.sync.get({"ocr_server": default_server}, function (config) {
-        let ocrServer = config["ocr_server"]
+        let ocrServer = config["ocr_server"] || default_server
         if (!ocrServer.includes("http")) {
             toast("错误: 服务设置错误")
             return;
