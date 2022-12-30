@@ -68,6 +68,8 @@ function copy(str, mimeType) {
         let ele = find_element(config.selector, config.index)
         if (ele) {
             ele.value = str
+            // vue 双向绑定更新数据
+            ele.dispatchEvent(new Event("input"))
         }
     } else {
         auto_detect_and_fill(str)
@@ -92,6 +94,8 @@ function auto_detect_and_fill(code) {
     )[0];
     if (verification_code_ele) {
         verification_code_ele.value = code
+         // vue 双向绑定更新数据
+         verification_code_ele.dispatchEvent(new Event("input"))
         window.setTimeout(function () {
             verification_code_ele.focus()
         }, 200);
