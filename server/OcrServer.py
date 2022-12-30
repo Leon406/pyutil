@@ -2,6 +2,7 @@ import configparser
 import json
 import os
 import platform
+import re
 import threading
 import time
 
@@ -32,7 +33,7 @@ black_users.add(SERVER_IP)
 RATE_TIME = 3600
 global RATE_LIMIT
 global BLACK_OVER_LIMIT
-RATE_LIMIT = RATE_TIME / 60
+RATE_LIMIT = int(RATE_TIME / 60)
 BLACK_OVER_LIMIT = RATE_LIMIT
 
 
@@ -127,7 +128,6 @@ def ocr():
             else:
                 return classify(requests.get(request.form['url']).content, ip)
 
-
         file = request.files['file']
         if file:
             filename = file.filename
@@ -189,13 +189,16 @@ def classify(content, ip):
     i = get_ddddocr()
     if i == -1:
         return json.dumps({'status': False, 'msg': '没有空闲的OCR线程'})
-    print("已调度线程", i)
+    if i != 0:
+        print("已调度线程", i)
     start = time.time()
-    data = ddddocr_list[i].classification(content)
+    data = post_process(ddddocr_list[i].classification(content))
+    print("reco====>", data)
     end = time.time()
     destroy_ddddocr(i)
-    print("线程", i, "已释放")
-    return json.dumps({'status': True, 'msg': 'SUCCESS', 'result': data, 'usage': end - start, 'ip': ip,
+    if i != 0:
+        print("线程", i, "已释放")
+    return json.dumps({'status': True, 'msg': 'SUCCESS', 'result': data, 't': round(end - start, 3), 'ip': ip,
                        'remain': RATE_LIMIT - USERS[ip]["count"]})
 
 
@@ -204,6 +207,27 @@ def parse_ip(req):
     if "X-Forwarded-For" in req.headers:
         ip = req.headers.getlist("X-Forwarded-For")[0]
     return ip
+
+
+regex_chinese = re.compile("[\u4e00-\u9fa5]+")
+regex_line = re.compile("""^[-)(/一_>=<+,]|[-)(/一_>=<+,]$""")
+
+
+def post_process(data: str) -> str:
+    """处理识别后的字符串,干扰线"""
+    after = regex_line.sub("", data)
+    chinese = regex_chinese.findall(data)
+    if chinese:
+        count = 0
+        for i in chinese:
+            count += len(i)
+        #  不支持中英混合, 比例小于1/4删除
+        if count / len(data) < 0.26:
+            after = regex_chinese.sub("", after)
+
+    if after != data:
+        print(f"process {data} ==> {after} ")
+    return after
 
 
 if __name__ == '__main__':
