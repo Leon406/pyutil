@@ -14,7 +14,7 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
             // 限制验证码图片高度, 防止滥用
             if (img.height > 200) {
                 toast("你确定这是验证码?")
-            }else {
+            } else {
                 sendResponse(drawBase64Image(img));
             }
             break;
@@ -42,7 +42,7 @@ chrome.storage.sync.get({"rule": ""}, function (config) {
 
 let delay = 200
 let last_time = 0
-const INTERVAL = 2000
+const INTERVAL = 200
 
 function img_click(event) {
     let now = Date.now();
@@ -95,8 +95,8 @@ function auto_detect_and_fill(code) {
     )[0];
     if (verification_code_ele) {
         verification_code_ele.value = code
-         // vue 双向绑定更新数据
-         verification_code_ele.dispatchEvent(new Event("input"))
+        // vue 双向绑定更新数据
+        verification_code_ele.dispatchEvent(new Event("input"))
         window.setTimeout(function () {
             verification_code_ele.focus()
         }, 200);
@@ -127,9 +127,15 @@ function find_attribute(element, attr = "placeholder", val = "验证码", eq = f
 }
 
 
+let exist_toast
+
 function toast(msg, duration) {
+    if (exist_toast) {
+        document.body.removeChild(exist_toast)
+    }
     duration = isNaN(duration) ? 2000 : duration;
     let m = document.createElement('div');
+    exist_toast = m
     m.innerHTML = msg;
     m.style.cssText = "width: 40%;min-width: 150px;opacity: 0.7;height: 30px;color: rgb(255, 255, 255);line-height: 30px;text-align: center;border-radius: 5px;position: fixed;top: 5%;left: 30%;z-index: 999999;background: rgb(0, 0, 0);font-size: 12px;";
     document.body.appendChild(m);
@@ -139,6 +145,7 @@ function toast(msg, duration) {
         m.style.opacity = '0';
         setTimeout(function () {
             document.body.removeChild(m)
+            exist_toast = null
         }, d * 1000);
     }, duration);
 }
