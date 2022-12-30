@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
 });
 
 
-chrome.storage.sync.get({"rule": ""}, function (config) {
+chrome.storage.sync.get({"rule": ""}, config => {
     parse_config(config.rule)
 })
 
@@ -57,7 +57,7 @@ function img_click(event) {
     last_time = now;
     DEBUG && console.log("img click", event.path[0], delay)
     // 等待页面刷新后再转base64,否者会白屏
-    setTimeout(function () {
+    setTimeout(() => {
         chrome.runtime.sendMessage(drawBase64Image(event.path[0]));
     }, delay)
 
@@ -101,7 +101,7 @@ function auto_detect_and_fill(code) {
         verification_code_ele.value = code
         // vue 双向绑定更新数据
         verification_code_ele.dispatchEvent(new Event("input"))
-        window.setTimeout(function () {
+        window.setTimeout(() => {
             verification_code_ele.focus()
         }, 200);
     }
@@ -143,15 +143,15 @@ function toast(msg, duration) {
     m.innerHTML = msg;
     m.style.cssText = "width: 40%;min-width: 150px;opacity: 0.7;height: 30px;color: rgb(255, 255, 255);line-height: 30px;text-align: center;border-radius: 5px;position: fixed;top: 5%;left: 30%;z-index: 999999;background: rgb(0, 0, 0);font-size: 12px;";
     document.body.appendChild(m);
-    setTimeout(function () {
+    setTimeout(() => {
         var d = 0.5;
         m.style.webkitTransition = '-webkit-transform ' + d + 's ease-in, opacity ' + d + 's ease-in';
         m.style.opacity = '0';
-        setTimeout(function () {
+        setTimeout(() => {
             try {
                 document.body.removeChild(m)
-            }catch (e) {
-                DEBUG&&console.error("remove ",e)
+            } catch (e) {
+                DEBUG && console.error("remove ", e)
             }
 
             exist_toast = null
@@ -203,14 +203,14 @@ function drawBase64Image(img) {
 
 
 //监听整个页面的 paste 事件, chrome只能监听文本
-document.addEventListener('paste', function (e) {
+document.addEventListener('paste', e => {
     let clipboardData = window.clipboardData || e.clipboardData;
     if (!clipboardData) return;
     let type = clipboardData.items[0] && clipboardData.items[0].type;
     if (type && type.match(/image/)) {
         let blob = clipboardData.items[0].getAsFile();
         let file = new FileReader();
-        file.addEventListener('loadend', function (e) {
+        file.addEventListener('loadend', e => {
             DEBUG && console.log("paste data", e.target.result)
             chrome.runtime.sendMessage(e.target.result);
         });
@@ -220,8 +220,8 @@ document.addEventListener('paste', function (e) {
 
 const image_url_reg = /https?:\/\/.*\.(png|jpg|jpeg)\b.*/ig
 //监听整个页面的 copy 事件,只能监听文本,图片链接
-document.addEventListener('copy', function (e) {
-    chrome.storage.sync.get({"copy_reco": false}, function (config) {
+document.addEventListener('copy', e => {
+    chrome.storage.sync.get({"copy_reco": false}, config => {
         if (config.copy_reco) {
             let clipboardData = window.clipboardData || e.clipboardData;
             if (!clipboardData) return;
@@ -293,7 +293,7 @@ function copy_cookie() {
 const very_code_nodes = []
 
 window.onload = function () {
-    chrome.storage.sync.get({"debug": false}, function (config) {
+    chrome.storage.sync.get({"debug": false}, config => {
         DEBUG = config.debug
         console.log("debug", DEBUG)
     })

@@ -9,14 +9,14 @@ chrome.contextMenus.create({
 });
 
 // 兼容MV3
-chrome.contextMenus.onClicked.addListener(function (item, tab) {
+chrome.contextMenus.onClicked.addListener((item, tab) => {
     if (item.srcUrl.startsWith("data:image/")) {
         console.log("background: 识别data:image/ 大小", item.srcUrl.length)
         handleBase64(item.srcUrl.replaceAll("\n", "").replaceAll("%0D%0A", ""));
     } else {
         if (new URL(item.pageUrl).host === new URL(item.srcUrl).host) {
             console.log("background: 同源url ", item.srcUrl)
-            chrome.tabs.sendMessage(tab.id, {"type": "base64", data: item}, function (base64) {
+            chrome.tabs.sendMessage(tab.id, {"type": "base64", data: item}, base64 => {
                 handleBase64(base64, item.srcUrl);
                 console.log(arguments, chrome.runtime.lastError);
             });
@@ -30,7 +30,7 @@ chrome.contextMenus.onClicked.addListener(function (item, tab) {
 
 
 //background.js添加监听，并把结果反馈给浏览器页面console显示。
-chrome.runtime.onMessage.addListener(function (request) {
+chrome.runtime.onMessage.addListener(request => {
     console.log(request);
     if (request.startsWith("data:image/")) {
         handleBase64(request);
@@ -42,7 +42,7 @@ chrome.runtime.onMessage.addListener(function (request) {
 // 在后台请求没有跨域问题
 function handleBase64(base64, url) {
     console.log("handleBase64", base64, url)
-    chrome.storage.sync.get({"ocr_server": default_server}, function (config) {
+    chrome.storage.sync.get({"ocr_server": default_server}, config => {
         let ocrServer = config["ocr_server"] || default_server
         if (!ocrServer.includes("http")) {
             toast("错误: 服务设置错误")
@@ -78,20 +78,20 @@ function handleBase64(base64, url) {
 }
 
 function copy(text, mimeType) {
-    chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+    chrome.tabs.query({currentWindow: true, active: true}, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, {
             "type": "copy", data: {text, mimeType}
-        }, function () {
+        }, () => {
             console.log(arguments, chrome.runtime.lastError);
         });
     });
 }
 
 function toast(message) {
-    chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+    chrome.tabs.query({currentWindow: true, active: true}, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, {
             "type": "notice", data: {message}
-        }, function () {
+        }, () => {
             console.log(arguments, chrome.runtime.lastError);
         });
     });

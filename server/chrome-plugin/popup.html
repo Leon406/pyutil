@@ -1,71 +1,74 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-  <style>
-         body {
+    <style>
+        body {
             width: 328px;
             height: 506px;
             overflow: hidden; /*or use overflow: scroll*/
-         }
-         .title {
-             color: #0000ff;
-             font-size: 16px;
-         }
-         .content {
-             color: #800fff;
-             font-size: 14px;
-         }
-     </style>
+        }
+
+        .title {
+            color: #0000ff;
+            font-size: 16px;
+        }
+
+        .content {
+            color: #800fff;
+            font-size: 14px;
+        }
+    </style>
     <meta charset="UTF-8">
     <title>Title</title>
-<script type="text/javascript" src="popup.js">
-</script>
+    <script src="popup.js" type="text/javascript">
+    </script>
 </head>
 <body>
- 
+
 <h1>验证码识别 by Leon406</h1>
 <div class="title">右键图片识别(支持跨域)：</div>
 <ol class="content">
-  <li>配置OCR服务器(可选)</li>
-  <li>图片右键选择 "识别验证码"</li>
+    <li>配置OCR服务器(可选)</li>
+    <li>图片右键选择 "识别验证码"</li>
 </ol>
 
 <div class="title">剪切板识别：</div>
 <div>适用浏览器之外的图片,或者动态gif验证码</div>
 
 <ol class="content">
-  <li>使用截图软件将图片保存到剪切板</li>
-  <li>任意页面粘贴或者Ctrl+V识别</li>
+    <li>使用截图软件将图片保存到剪切板</li>
+    <li>任意页面粘贴或者Ctrl+V识别</li>
 </ol>
 
-<div class="title">复制图片链接时识别 <input type="checkbox" id="copy_uri_reco" />启用</div>
+<div class="title">复制图片链接时识别 <input id="copy_uri_reco" type="checkbox"/>启用</div>
 
 <br/>
 <div class="title"> OCR 服务器配置(已默认个人服务器)：</div>
 
 <div>
-	<input id='ocrServerUrl'/>
-	<button id="btn">保存</button>
+    <input id='ocrServerUrl'/>
+    <button id="btn">保存</button>
 </div>
 <br/>
 <div class="content">若不自动填写,请手动粘贴,也可进行手动配置</div>
 <div class="title">自动填写配置：</div>
-<div>格式: <b>host,selector<i>[,index]</i> </b>&nbsp;&nbsp;其中host=location.href<br>多个用<b>;</b>分割 如 "baidu.com,input,2;google.com,input#id"</div>
+<div>格式: <b>host,selector<i>[,index]</i> </b>&nbsp;&nbsp;其中host=location.href<br>多个用<b>;</b>分割 如
+    "baidu.com,input,2;google.com,input#id"
+</div>
 <br/>
 <div>
-	<input id='rule'/>
-	<button id="btn_rule">保存</button>
+    <input id='rule'/>
+    <button id="btn_rule">保存</button>
 </div>
 <br/>
 
 <div>
-	<button id="btn_cookie">获取cookie</button>
-	<button id="btn_remove_restrict">解除限制</button>
-	<button id="btn_free_edit">页面可编辑</button>
-    <input type="checkbox" id="debug" />调试模式
+    <button id="btn_cookie">获取cookie</button>
+    <button id="btn_remove_restrict">解除限制</button>
+    <button id="btn_free_edit">页面可编辑</button>
+    <input id="debug" type="checkbox"/>调试模式
 </div>
-<a href="https://github.com/Leon406/pyutil/tree/master/server"  target="_blank">服务器部署源码(ddddOcr)</a>&nbsp;&nbsp;
-<a href="https://github.com/Leon406/pyutil/tree/master/ocr"  target="_blank">服务器部署源码(muggleOcr)</a>
+<a href="https://github.com/Leon406/pyutil/tree/master/server" target="_blank">服务器部署源码(ddddOcr)</a>&nbsp;&nbsp;
 
 
 <div id='status'/>
