@@ -42,10 +42,11 @@ chrome.storage.sync.get({"rule": ""}, function (config) {
 
 let delay = 200
 let last_time = 0
+const INTERVAL = 2000
 
 function img_click(event) {
     let now = Date.now();
-    if (now - last_time < 2000) {
+    if (now - last_time < INTERVAL) {
         toast("请勿频繁点击", 1500)
         return
     }

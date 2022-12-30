@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener(function (request) {
 
 // 在后台请求没有跨域问题
 function handleBase64(base64, url) {
-    console.log("handleBase64", base64,url)
+    console.log("handleBase64", base64, url)
     chrome.storage.sync.get({"ocr_server": default_server}, function (config) {
         let ocrServer = config["ocr_server"] || default_server
         if (!ocrServer.includes("http")) {
@@ -58,7 +58,7 @@ function handleBase64(base64, url) {
                 "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
                 "x-requested-with": "XMLHttpRequest"
             },
-            "body": base64 ? ("base64=" + encodeURIComponent(base64)) : ("url=" + url),
+            "body": base64 ? ("base64=" + encodeURIComponent(base64.replace(/.*,/, ""))) : ("url=" + url),
             "method": "POST"
         })
             .then(response => response.json())
