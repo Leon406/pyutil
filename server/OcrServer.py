@@ -29,7 +29,6 @@ USERS = {}
 RESTRICT_USERS = {}
 black_users = set()
 SERVER_IP = "127.0.0.1"
-black_users.add(SERVER_IP)
 RATE_TIME = 3600
 global RATE_LIMIT
 global BLACK_OVER_LIMIT
