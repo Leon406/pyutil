@@ -70,13 +70,19 @@ function copy(str, mimeType) {
         delay = Math.min(delay * 1.2, 2000)
     }
     if (config) {
+        DEBUG && console.log("自动填充", "找到规则", config.selector)
         let ele = find_element(config.selector, config.index)
         if (ele) {
+            DEBUG && console.log("自动填充", "找到节点并填写", ele)
             ele.value = str
             // vue 双向绑定更新数据
             ele.dispatchEvent(new Event("input"))
+        } else {
+            DEBUG && console.log("自动填充", "规则失效,尝试寻找填写位置")
+            auto_detect_and_fill(str)
         }
     } else {
+        DEBUG && console.log("自动填充", "未找到规则, 尝试寻找填写位置")
         auto_detect_and_fill(str)
     }
     document.oncopy = function (event) {
