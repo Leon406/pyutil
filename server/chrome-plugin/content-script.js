@@ -1,10 +1,18 @@
+let delay = 200
+let last_time = 0
+const INTERVAL = 2000
+let DEBUG = false
+
 // 监听 background 传来的数据 可对页面dom操作
 chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
-    console.log("receive from background: ", data);
+    DEBUG && console.log("receive from background: ", data);
 
     switch (data.type) {
         case "copy":
             copy(data.data.text, data.data.mimeType)
+            break;
+        case "debug":
+            DEBUG = data.data
             break;
         case "notice":
             toast(data.data.message)
@@ -40,10 +48,6 @@ chrome.storage.sync.get({"rule": ""}, function (config) {
     parse_config(config.rule)
 })
 
-let delay = 200
-let last_time = 0
-const INTERVAL = 200
-
 function img_click(event) {
     let now = Date.now();
     if (now - last_time < INTERVAL) {
@@ -51,7 +55,7 @@ function img_click(event) {
         return
     }
     last_time = now;
-    console.log("img click", event.path[0], delay)
+    DEBUG && console.log("img click", event.path[0], delay)
     // 等待页面刷新后再转base64,否者会白屏
     setTimeout(function () {
         chrome.runtime.sendMessage(drawBase64Image(event.path[0]));
@@ -144,7 +148,12 @@ function toast(msg, duration) {
         m.style.webkitTransition = '-webkit-transform ' + d + 's ease-in, opacity ' + d + 's ease-in';
         m.style.opacity = '0';
         setTimeout(function () {
-            document.body.removeChild(m)
+            try {
+                document.body.removeChild(m)
+            }catch (e) {
+                DEBUG&&console.error("remove ",e)
+            }
+
             exist_toast = null
         }, d * 1000);
     }, duration);
@@ -164,10 +173,10 @@ function getImg(url, doc = document) {
 }
 
 function drawBase64Image(img) {
-    console.log("drawBase64Image", img)
+    DEBUG && console.log("drawBase64Image", img)
     if (img) {
         if (!Array.from(very_code_nodes).includes(img)) {
-            console.log("add nodes", img)
+            DEBUG && console.log("add nodes", img)
             very_code_nodes.push(img)
             img.addEventListener('click', img_click);
         }
@@ -180,7 +189,6 @@ function drawBase64Image(img) {
     let dataURL;
     try {
         dataURL = canvas.toDataURL('image/webp');
-        // console.log("dataURL", dataURL)
     } catch (e) {
         console.info("drawBase64Image to webp", e);
         // 不支持webp时,转jpeg
@@ -203,7 +211,7 @@ document.addEventListener('paste', function (e) {
         let blob = clipboardData.items[0].getAsFile();
         let file = new FileReader();
         file.addEventListener('loadend', function (e) {
-            console.log("paste data", e.target.result)
+            DEBUG && console.log("paste data", e.target.result)
             chrome.runtime.sendMessage(e.target.result);
         });
         file.readAsDataURL(blob);
@@ -236,22 +244,22 @@ let fill_config = {}
 
 // "domain,selector[,index]"
 function parse_config(config) {
-    console.log("解析规则:", config)
+    DEBUG && console.log("解析规则:", config)
     fill_config = {}
     let items = config.split(";")
-    console.log("解析规则 items:", items)
+    DEBUG && console.log("解析规则 items:", items)
     for (let i = 0; i < items.length; i++) {
         let info = items[i].split(",");
-        console.log("解析规则 info:", items[i], info)
+        DEBUG && console.log("解析规则 info:", items[i], info)
         if (info.length >= 2) {
             let selector = info[1]
             let index = info.length === 3 ? info[2] : 0
             fill_config[info[0]] = {selector, index}
         } else {
-            console.log("配置错误:", items[i])
+            DEBUG && console.log("配置错误:", items[i])
         }
     }
-    console.log("解析结束:", fill_config)
+    DEBUG && console.log("解析结束:", fill_config)
 }
 
 function free_edit() {
@@ -285,24 +293,27 @@ function copy_cookie() {
 const very_code_nodes = []
 
 window.onload = function () {
+    chrome.storage.sync.get({"debug": false}, function (config) {
+        DEBUG = config.debug
+        console.log("debug", DEBUG)
+    })
     let verifycode_ele = Array.from(document.getElementsByTagName("img")).filter(el =>
         find_attribute(el, "alt", "图片刷新") ||
         find_attribute(el, "src", /Validate|captcha|login-code-img/gi) ||
         find_attribute(el, "class", /login-code/gi)
     )
-    console.log("_______loaded_____ find", verifycode_ele)
+    DEBUG && console.log("_______loaded_____ find", verifycode_ele)
     very_code_nodes.push(verifycode_ele)
     verifycode_ele.forEach(el => {
             very_code_nodes.push(el)
             el.addEventListener('click', img_click)
-            console.log("_______add click_____", el)
+            DEBUG && console.log("_______add click_____", el)
             let start = Date.now()
             if (el.src.startsWith("http")) {
                 fetch(el.src)
-                    .then(res => {
-                        console.log(res)
+                    .then(() => {
                         delay = Math.min(Math.max((Date.now() - start) * 1.2, delay), 2000)
-                        console.log("_______重设图片刷新延迟____", delay)
+                        DEBUG && console.log("_______重设图片刷新延迟____", delay)
                     })
                     .catch(error => {
                         toast("请求验证码图片失败: ", error)

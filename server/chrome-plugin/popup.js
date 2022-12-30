@@ -72,6 +72,15 @@ function restore_options() {
             chrome.storage.sync.set({"copy_reco": checkbox.checked})
         })
     })
+
+    let checkbox_debug = document.getElementById("debug");
+    chrome.storage.sync.get({"debug": false}, function (config) {
+        checkbox_debug.checked = config.debug
+        checkbox_debug.addEventListener('change', function (state) {
+            chrome.storage.sync.set({"debug": checkbox_debug.checked})
+            sendMessage({"type": "debug", data: checkbox_debug.checked});
+        })
+    })
 }
 
 window.addEventListener('load', restore_options)
