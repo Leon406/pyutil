@@ -112,7 +112,7 @@ def ocr():
             b64 = b64[b64.find(',') + 1:]
             return classify(b64, ip)
         if "url" in request.form:
-            pre_request = requests.head(request.form['url'])
+            pre_request = requests.head(request.form['url'], timeout=2)
             length = 0
             if "Content-Length" in pre_request.headers:
                 length = pre_request.headers["Content-Length"]
@@ -122,11 +122,11 @@ def ocr():
             # 校验图片大小
             if length:
                 if int(length) < 64 * 1024:
-                    return classify(requests.get(request.form['url']).content, ip)
+                    return classify(requests.get(request.form['url'], timeout=3).content, ip)
                 else:
                     return json.dumps({'code': False, 'msg': '文件大于64k'})
             else:
-                return classify(requests.get(request.form['url']).content, ip)
+                return classify(requests.get(request.form['url'], timeout=3).content, ip)
 
         file = request.files['file']
         if file:
@@ -189,17 +189,18 @@ def classify(content, ip):
     i = get_ddddocr()
     if i == -1:
         return json.dumps({'status': False, 'msg': '没有空闲的OCR线程'})
-    if i != 0:
-        print("已调度线程", i)
+
+    print("已调度线程", i)
     start = time.time()
-    data = post_process(ddddocr_list[i].classification(content))
-    print("reco====>", data)
-    end = time.time()
-    destroy_ddddocr(i)
-    if i != 0:
+    try:
+        data = post_process(ddddocr_list[i].classification(content))
+        print("reco==>", data)
+        end = time.time()
+        return json.dumps({'status': True, 'msg': 'SUCCESS', 'result': data, 't': round(end - start, 3), 'ip': ip,
+                           'remain': RATE_LIMIT - USERS[ip]["count"]})
+    finally:
+        destroy_ddddocr(i)
         print("线程", i, "已释放")
-    return json.dumps({'status': True, 'msg': 'SUCCESS', 'result': data, 't': round(end - start, 3), 'ip': ip,
-                       'remain': RATE_LIMIT - USERS[ip]["count"]})
 
 
 def parse_ip(req):
