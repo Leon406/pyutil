@@ -56,8 +56,10 @@ function img_click(event) {
     last_time = now;
     let ele = event.path[0];
     DEBUG && console.log("img click", ele)
-    ele.onload=function(){
+    ele.onload = function () {
         chrome.runtime.sendMessage(drawBase64Image(ele));
+        // 调试模式可以无间隔发送请求,服务器会限制请求数量
+        if (!DEBUG) ele.onload = null
     }
 }
 
@@ -136,6 +138,7 @@ function toast(msg, duration) {
     if (exist_toast) {
         document.body.removeChild(exist_toast)
     }
+
     duration = isNaN(duration) ? 2000 : duration;
     let m = document.createElement('div');
     exist_toast = m
@@ -143,17 +146,17 @@ function toast(msg, duration) {
     m.style.cssText = "width: 40%;min-width: 150px;opacity: 0.7;height: 30px;color: rgb(255, 255, 255);line-height: 30px;text-align: center;border-radius: 5px;position: fixed;top: 5%;left: 30%;z-index: 999999;background: rgb(0, 0, 0);font-size: 12px;";
     document.body.appendChild(m);
     setTimeout(() => {
-        var d = 0.5;
+        let d = 0.5;
         m.style.webkitTransition = '-webkit-transform ' + d + 's ease-in, opacity ' + d + 's ease-in';
         m.style.opacity = '0';
         setTimeout(() => {
-            try {
-                document.body.removeChild(m)
-            } catch (e) {
-                DEBUG && console.error("remove ", e)
-            }
+            Array.from(document.body.children).filter(el => el === m).forEach(
+                el => {
+                    document.body.removeChild(el);
+                    exist_toast = null
+                }
+            );
 
-            exist_toast = null
         }, d * 1000);
     }, duration);
 }
@@ -175,7 +178,7 @@ function drawBase64Image(img) {
     DEBUG && console.log("drawBase64Image", img)
     if (img) {
         if (!Array.from(very_code_nodes).includes(img)) {
-            DEBUG && console.log("add nodes", img)
+            DEBUG && console.log("cache nodes", img)
             very_code_nodes.push(img)
             img.addEventListener('click', img_click);
         }
@@ -295,15 +298,15 @@ const very_code_nodes = []
 const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
 
 function listen(ele) {
-    let observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            mutation.target.onload=function(){
+    let observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            mutation.target.onload = function () {
                 chrome.runtime.sendMessage(drawBase64Image(mutation.target));
             }
         });
     });
 
-    let config = { attributes: true,attributeFilter:["src"] ,childList: true, characterData: true }
+    let config = {attributes: true, attributeFilter: ["src"], childList: true, characterData: true}
     observer.observe(ele, config);
 }
 
