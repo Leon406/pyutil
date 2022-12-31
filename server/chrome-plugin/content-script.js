@@ -1,4 +1,3 @@
-let delay = 200
 let last_time = 0
 const INTERVAL = 2000
 let DEBUG = false
@@ -55,20 +54,15 @@ function img_click(event) {
         return
     }
     last_time = now;
-    DEBUG && console.log("img click", event.path[0], delay)
-    // 等待页面刷新后再转base64,否者会白屏
-    setTimeout(() => {
-        chrome.runtime.sendMessage(drawBase64Image(event.path[0]));
-    }, delay)
-
+    let ele = event.path[0];
+    DEBUG && console.log("img click", ele)
+    ele.onload=function(){
+        chrome.runtime.sendMessage(drawBase64Image(ele));
+    }
 }
 
 function copy(str, mimeType) {
     let config = fill_config[location.host];
-    // 无内容适当调整延迟
-    if (!str) {
-        delay = Math.min(delay * 1.2, 2000)
-    }
     if (config) {
         DEBUG && console.log("自动填充", "找到规则", config.selector)
         let ele = find_element(config.selector, config.index)
@@ -130,7 +124,6 @@ function find_attribute(element, attr = "placeholder", val = "验证码", eq = f
             if (key === attr && (eq ? val.test(elementKeys[attr].value) : val.exec(elementKeys[attr].value))) {
                 return true;
             }
-            val.exec()
         }
     }
     return false;
@@ -191,6 +184,7 @@ function drawBase64Image(img) {
     canvas.width = img.width;
     canvas.height = img.height;
     let ctx = canvas.getContext('2d');
+    ctx.filter = "grayscale()";
     ctx.drawImage(img, 0, 0, img.width, img.height);
     let dataURL;
     try {
@@ -297,6 +291,22 @@ function copy_cookie() {
 }
 
 const very_code_nodes = []
+// Firefox和Chrome早期版本中带有前缀
+const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
+
+function listen(ele) {
+    let observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.target.onload=function(){
+                chrome.runtime.sendMessage(drawBase64Image(mutation.target));
+            }
+        });
+    });
+
+    let config = { attributes: true,attributeFilter:["src"] ,childList: true, characterData: true }
+    observer.observe(ele, config);
+}
+
 
 window.onload = function () {
     chrome.storage.sync.get({"debug": false}, config => {
@@ -306,25 +316,15 @@ window.onload = function () {
     let verifycode_ele = Array.from(document.getElementsByTagName("img")).filter(el =>
         find_attribute(el, "alt", "图片刷新") ||
         find_attribute(el, "src", /Validate|captcha|login-code-img/gi) ||
-        find_attribute(el, "class", /login-code/gi)
+        find_attribute(el, "class", /login-code|verify/gi)
     )
     DEBUG && console.log("_______loaded_____ find", verifycode_ele)
     very_code_nodes.push(verifycode_ele)
     verifycode_ele.forEach(el => {
+            // listen(el)
             very_code_nodes.push(el)
             el.addEventListener('click', img_click)
             DEBUG && console.log("_______add click_____", el)
-            let start = Date.now()
-            if (el.src.startsWith("http")) {
-                fetch(el.src)
-                    .then(() => {
-                        delay = Math.min(Math.max((Date.now() - start) * 1.2, delay), 2000)
-                        DEBUG && console.log("_______重设图片刷新延迟____", delay)
-                    })
-                    .catch(error => {
-                        toast("请求验证码图片失败: ", error)
-                    })
-            }
         }
     )
 }
