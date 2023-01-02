@@ -38,56 +38,65 @@ function save_rule() {
 }
 
 function restore_options() {
-    document.getElementById("btn").addEventListener('click', save_server_config);
     let ele = document.getElementById("ocrServerUrl");
-    chrome.storage.sync.get({"ocr_server": ""}, config => {
-        let server = config.ocr_server
-        if (!server) {
-            return;
-        }
-        ele.value = server
-    })
+    chrome.storage.sync.get({"ocr_server": ""})
+        .then(config => {
+            let server = config.ocr_server
+            if (!server) {
+                return;
+            }
+            ele.value = server
+        })
 
     let ele_rule = document.getElementById("rule");
-    chrome.storage.sync.get({"rule": ""}, config => {
-        ele_rule.value = config.rule
-    })
-    document.getElementById("btn_rule").addEventListener('click', save_rule);
+    chrome.storage.sync.get({"rule": ""})
+        .then(config => {
+            ele_rule.value = config.rule
+        })
 
-    document.getElementById("btn_cookie").addEventListener('click', () => {
+    ele_click("btn", save_server_config)
+    ele_click("btn_rule", save_rule)
+    ele_click("btn_cookie", () => {
         sendMessage({"type": "copy_cookie"});
     });
-    document.getElementById("btn_remove_restrict").addEventListener('click', () => {
+    ele_click("btn_remove_restrict", () => {
         sendMessage({"type": "remove_restrict"});
     });
-    document.getElementById("btn_free_edit").addEventListener('click', () => {
+    ele_click("btn_free_edit", () => {
         sendMessage({"type": "free_edit"});
     });
 
+    add_check_box_listener("reco_on_load", "reco_on_load")
+    add_check_box_listener("debug", "debug", true)
+    add_check_box_listener("copy_uri_reco", "copy_reco")
+}
 
-    let checkbox = document.getElementById("copy_uri_reco");
-    chrome.storage.sync.get({"copy_reco": false}, config => {
-        checkbox.checked = config.copy_reco
-        checkbox.addEventListener('change', (state) => {
-            chrome.storage.sync.set({"copy_reco": checkbox.checked})
+function add_check_box_listener(id, prop, is_send = false) {
+    prop = prop || id
+    let cb = document.getElementById(id);
+    let dict = {}
+    dict[prop] = false
+    chrome.storage.sync.get(dict)
+        .then(config => {
+            cb.checked = config[prop]
+            cb.addEventListener('change', () => {
+                console.log("___ listenr", prop, cb.checked);
+                dict[prop] = cb.checked
+                chrome.storage.sync.set(dict)
+                is_send && sendMessage({"type": prop, data: cb.checked});
+            })
         })
-    })
+}
 
-    let checkbox_debug = document.getElementById("debug");
-    chrome.storage.sync.get({"debug": false}, config => {
-        checkbox_debug.checked = config.debug
-        checkbox_debug.addEventListener('change', () => {
-            chrome.storage.sync.set({"debug": checkbox_debug.checked})
-            sendMessage({"type": "debug", data: checkbox_debug.checked});
-        })
-    })
+function ele_click(id, callback) {
+    document.getElementById(id).addEventListener('click', callback)
 }
 
 window.addEventListener('load', restore_options)
 
 //监听整个页面的 paste 事件
 document.addEventListener('paste', e => {
-    let clipboardData = e.clipboardData || window.clipboardData;
+    let clipboardData = window.clipboardData || e.clipboardData;
     let type = clipboardData.items[0].type;
     if (!clipboardData) return;
 

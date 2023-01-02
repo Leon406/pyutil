@@ -43,9 +43,10 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
 });
 
 
-chrome.storage.sync.get({"rule": ""}, config => {
-    parse_config(config.rule)
-})
+chrome.storage.sync.get({"rule": ""})
+    .then(config => {
+        parse_config(config.rule)
+    })
 
 function img_click(event) {
     let now = Date.now();
@@ -221,22 +222,23 @@ document.addEventListener('paste', e => {
     }
 })
 
-const image_url_reg = /https?:\/\/.*\.(png|jpg|jpeg)\b.*/ig
+const image_url_reg = /https?:\/\/.*\.(png|jpg|jpeg|gif)\b.*/ig
 //监听整个页面的 copy 事件,只能监听文本,图片链接
 document.addEventListener('copy', e => {
-    chrome.storage.sync.get({"copy_reco": false}, config => {
-        if (config.copy_reco) {
-            let clipboardData = window.clipboardData || e.clipboardData;
-            if (!clipboardData) return;
-            let text = window.getSelection().toString();
-            if (text) {
-                console.info("copy text", text)
-                if (text.startsWith("data:image") || image_url_reg.test(text)) {
-                    chrome.runtime.sendMessage(text);
+    chrome.storage.sync.get({"copy_reco": false})
+        .then(config => {
+            if (config.copy_reco) {
+                let clipboardData = window.clipboardData || e.clipboardData;
+                if (!clipboardData) return;
+                let text = window.getSelection().toString();
+                if (text) {
+                    console.info("copy text", text)
+                    if (text.startsWith("data:image") || image_url_reg.test(text)) {
+                        chrome.runtime.sendMessage(text);
+                    }
                 }
             }
-        }
-    })
+        })
 })
 
 function find_element(selector, index) {
@@ -312,22 +314,34 @@ function listen(ele) {
 
 
 window.onload = function () {
-    chrome.storage.sync.get({"debug": false}, config => {
-        DEBUG = config.debug
-        console.log("debug", DEBUG)
-    })
+    chrome.storage.sync.get({"debug": false})
+        .then(config => {
+            DEBUG = config.debug
+            console.log("debug", DEBUG)
+        })
     let verifycode_ele = Array.from(document.getElementsByTagName("img")).filter(el =>
         find_attribute(el, "alt", "图片刷新") ||
         find_attribute(el, "src", /Validate|captcha|login-code-img/gi) ||
+        find_attribute(el, "id", /auth|code/gi) ||
         find_attribute(el, "class", /login-code|verify/gi)
     )
     DEBUG && console.log("_______loaded_____ find", verifycode_ele)
     very_code_nodes.push(verifycode_ele)
-    verifycode_ele.forEach(el => {
-            // listen(el)
-            very_code_nodes.push(el)
-            el.addEventListener('click', img_click)
-            DEBUG && console.log("_______add click_____", el)
-        }
-    )
+    chrome.storage.sync.get({"reco_on_load": false})
+        .then(config => {
+            verifycode_ele.forEach(el => {
+                    // listen(el)
+                    very_code_nodes.push(el)
+                    el.addEventListener('click', img_click)
+                    DEBUG && console.log("_______add click_____", el)
+                    if (config.reco_on_load) {
+                        if (el.height > 200) {
+                            toast("你确定这是验证码?")
+                        } else {
+                            chrome.runtime.sendMessage(drawBase64Image(el));
+                        }
+                    }
+                }
+            )
+        })
 }
