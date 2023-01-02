@@ -49,12 +49,10 @@ chrome.storage.sync.get({"rule": ""})
     })
 
 function img_click(event) {
-    let now = Date.now();
-    if (now - last_time < INTERVAL) {
+    if (debounce()) {
         toast("请勿频繁点击", 1500)
-        return
+        return;
     }
-    last_time = now;
     let ele = event.path[0];
     DEBUG && console.log("img click", ele)
     ele.onload = function () {
@@ -64,11 +62,21 @@ function img_click(event) {
     }
 }
 
+function debounce(interval = INTERVAL) {
+    let now = Date.now();
+    interval = DEBUG ? interval / 5 : interval
+    if (now - last_time < interval) {
+        return true
+    }
+    last_time = now;
+    return false
+}
+
 function copy(str, mimeType) {
     let config = fill_config[location.host];
     if (config) {
         DEBUG && console.log("自动填充", "找到规则", config.selector)
-        let ele = find_element(config.selector, config.index)
+        let ele = find_element(config.selector)
         if (ele) {
             DEBUG && console.log("自动填充", "找到节点并填写", ele)
             ele.value = str
@@ -181,7 +189,8 @@ function drawBase64Image(img) {
         if (!Array.from(very_code_nodes).includes(img)) {
             DEBUG && console.log("cache nodes", img)
             very_code_nodes.push(img)
-            img.addEventListener('click', img_click);
+            listen(img)
+            // img.addEventListener('click', img_click);
         }
     }
     let canvas = document.createElement('canvas');
@@ -241,25 +250,27 @@ document.addEventListener('copy', e => {
         })
 })
 
-function find_element(selector, index) {
-    return document.querySelectorAll(selector)[index];
+function find_element(selector) {
+    return document.querySelector(selector);
 }
 
 let fill_config = {}
 
-// "domain,selector[,index]"
+// "domain,selector[,img-selector]"
 function parse_config(config) {
     DEBUG && console.log("解析规则:", config)
     fill_config = {}
     let items = config.split(";")
+    let host = window.location.host
     DEBUG && console.log("解析规则 items:", items)
     for (let i = 0; i < items.length; i++) {
         let info = items[i].split(",");
         DEBUG && console.log("解析规则 info:", items[i], info)
+        if (host !== info[0]) continue
         if (info.length >= 2) {
             let selector = info[1]
-            let index = info.length === 3 ? info[2] : 0
-            fill_config[info[0]] = {selector, index}
+            let img = info.length === 3 ? info[2] : ''
+            fill_config[info[0]] = {selector, img}
         } else {
             DEBUG && console.log("配置错误:", items[i])
         }
@@ -300,10 +311,17 @@ const very_code_nodes = []
 const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
 
 function listen(ele) {
+    // el.addEventListener('click', img_click)
     let observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
             mutation.target.onload = function () {
+                if (debounce()) {
+                    toast("请勿频繁点击", 1500)
+                    return;
+                }
                 chrome.runtime.sendMessage(drawBase64Image(mutation.target));
+                // 调试模式可以无间隔发送请求,服务器会限制请求数量
+                if (!DEBUG) mutation.target.onload = null
             }
         });
     });
@@ -325,14 +343,23 @@ window.onload = function () {
         find_attribute(el, "id", /auth|code/gi) ||
         find_attribute(el, "class", /login-code|verify/gi)
     )
+    if (fill_config && fill_config.img) {
+        console.log("_______loaded_____ image config", fill_config, verifycode_ele)
+        let ele = find_element(fill_config.img);
+        if (verifycode_ele) {
+            verifycode_ele.push(ele)
+        } else {
+            verifycode_ele = ele
+        }
+        console.log("_______loaded_____ image very_code_nodes", verifycode_ele)
+    }
     DEBUG && console.log("_______loaded_____ find", verifycode_ele)
-    very_code_nodes.push(verifycode_ele)
     chrome.storage.sync.get({"reco_on_load": false})
         .then(config => {
             verifycode_ele.forEach(el => {
                     // listen(el)
                     very_code_nodes.push(el)
-                    el.addEventListener('click', img_click)
+                    listen(el)
                     DEBUG && console.log("_______add click_____", el)
                     if (config.reco_on_load) {
                         if (el.height > 200) {
