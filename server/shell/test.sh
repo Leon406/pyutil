@@ -1,1 +1,0 @@
-curl "http://127.0.0.1:5000/ocr" -F "file=@test.jpg" -H "X-Requested-With: XMLHttpRequest"
