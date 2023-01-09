@@ -3,3 +3,4 @@ pycryptodomex
 lz4
 SecretStorage
 keyring
+PyExecJS
