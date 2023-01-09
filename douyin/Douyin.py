@@ -18,8 +18,8 @@ def write(path, text):
 
 sess = requests.session()
 headers = {
-    "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/89.0.4389.114 Mobile Safari/537.36"
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.76",
+    "referer": "https://www.douyin.com/user/"
 }
 
 
@@ -40,6 +40,8 @@ def get_cookie_from_browser(site='https://www.douyin.com'):
 
 cookie_jar = get_cookie_from_browser("https://www.douyin.com")
 print(cookie_jar)
+msToken = cookie_jar["msToken"]
+print("msToken", msToken)
 
 # 可输入链接：https://v.douyin.com/dMAhh44/
 # inputUrl = input('粘贴分享链接：')
@@ -131,12 +133,23 @@ for inputUrl in shorts:
 
     startPage = sess.get(shortUrl, headers=headers, allow_redirects=False)
     location = startPage.headers['location']
-    print(location)
+    print("location", location)
     sec_uid = re.findall('(?<=sec_uid=)[\\w -]+', location, re.M | re.I)[0]
-    name = sess.get('https://www.iesdouyin.com/web/api/v2/user/info/?sec_uid={}'.format(sec_uid),
+    print("sec_uid",sec_uid)
+    req_url = 'https://www.douyin.com/aweme/v1/web/social/count?' \
+              'device_platform=webapp&aid=6383&channel=channel_pc_web&pc_client_type=1' \
+              '&version_code=170400&version_name=17.4.0&cookie_enabled=true&screen_width=1603' \
+              '&screen_height=902&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge' \
+              '&browser_version=108.0.1462.76&browser_online=true&engine_name=Blink&engine_version=108.0.0.0' \
+              '&os_name=Windows&os_version=10&cpu_core_num=12&device_memory=8&platform=PC&downlink=10' \
+              '&effective_type=4g&round_trip_time=50&webid=7186641719562339895' \
+              '&msToken={}&X-Bogus=DFSzswVOMgUANVEgSDNWXQppgiFE'.format(sec_uid, msToken)
+    print(req_url)
+    name = sess.get(req_url,
                     headers=headers, cookies=cookie_jar).text
-    userinfo = json.loads(name)
-    name = userinfo['user_info']['nickname']
+    print(name)
+    userinfo =name and json.loads(name)
+    name = userinfo and userinfo['user_info']['nickname'] or "dy"
     print(name)
 
     saveFileDir = name
