@@ -38,7 +38,6 @@ def search(key, page=1):
     files = []
     dirs = []
     for data in datas:
-        # print(data["fs_id"], data["isdir"], data["path"])
         if data["isdir"] == 1:
             dirs.append({"id": data["fs_id"], "path": data["path"]})
         else:

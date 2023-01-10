@@ -105,7 +105,7 @@ def download(to_date=None, from_date=None, need_cover=False):
 
         end_date = start_date
         start_date = start_date - relativedelta(months=1)
-        if end_date > stop_date and start_date < stop_date:
+        if end_date > stop_date > start_date:
             start_date = stop_date
 
     print(f"\ncount= {count}")
