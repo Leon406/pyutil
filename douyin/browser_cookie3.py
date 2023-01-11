@@ -8,7 +8,6 @@ import json
 import os
 import sqlite3
 import struct
-import sys
 import tempfile
 from io import BytesIO
 from typing import Union
@@ -19,6 +18,8 @@ import lz4.block
 from Cryptodome.Cipher import AES
 from Cryptodome.Protocol.KDF import PBKDF2
 from Cryptodome.Util.Padding import unpad
+
+import sys
 
 __doc__ = 'Load browser cookies into a cookiejar'
 
@@ -35,7 +36,7 @@ def create_local_copy(cookie_file):
     # check if cookie file exists
     if os.path.exists(cookie_file):
         # copy to random name in tmp folder
-        print("cookie_file",cookie_file)
+        print("cookie_file", cookie_file)
         tmp_cookie_file = tempfile.NamedTemporaryFile(suffix='.sqlite').name
         with open(tmp_cookie_file, "wb") as f1, open(cookie_file, "rb") as f2:
             f1.write(f2.read())
@@ -252,7 +253,6 @@ class ChromiumBased:
 
             cookie_file = self.cookie_file or expand_paths(linux_cookies, 'linux')
 
-
         elif sys.platform == "win32":
             key_file = self.key_file or expand_paths(windows_keys, 'windows')
 
@@ -402,8 +402,9 @@ class Chrome(ChromiumBased):
             'windows_cookies': [
                 {'env': 'LOCALAPPDATA', 'path': 'Google\\Chrome\\User Data\\Default\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Google\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Google\\Chrome\\User Data\\Default\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'Google\\Chrome\\User Data\\Default\\Network\\Cookies'},
-                {'env': 'APPDATA', 'path': 'Google\\Chrome\\User Data\\Default\\Network\\Cookies'}
+                {'env': 'APPDATA', 'path': 'Google\\Chrome\\User Data\\Default\\Network\\Cookies'},
             ],
             'osx_cookies': [
                 '~/Library/Application Support/Google/Chrome/Default/Cookies',
@@ -429,7 +430,9 @@ class Chromium(ChromiumBased):
             'windows_cookies': [
                 {'env': 'LOCALAPPDATA', 'path': 'Chromium\\User Data\\Default\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Chromium\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Chromium\\User Data\\Default\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'Chromium\\User Data\\Default\\Network\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Chromium\\User Data\\Default\\Network\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Chromium\\User Data\\Default\\Network\\Cookies'}
             ],
             'osx_cookies': [
@@ -438,7 +441,8 @@ class Chromium(ChromiumBased):
             ],
             'windows_keys': [
                 {'env': 'LOCALAPPDATA', 'path': 'Chromium\\User Data\\Local State'},
-                {'env': 'APPDATA', 'path': 'Chromium\\User Data\\Local State'}
+                {'env': 'APPDATA', 'path': 'Chromium\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Chromium\\User Data\\Local State'}
             ],
             'os_crypt_name': 'chromium',
             'osx_key_service': 'Chromium Safe Storage',
@@ -457,12 +461,15 @@ class Opera(ChromiumBased):
             'windows_cookies': [
                 {'env': 'LOCALAPPDATA', 'path': 'Opera Software\\Opera Stable\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Opera Software\\Opera Stable\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Opera Software\\Opera Stable\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'Opera Software\\Opera Stable\\Network\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Opera Software\\Opera Stable\\Network\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Opera Software\\Opera Stable\\Network\\Cookies'}
             ],
             'osx_cookies': ['~/Library/Application Support/com.operasoftware.Opera/Cookies'],
             'windows_keys': [
                 {'env': 'LOCALAPPDATA', 'path': 'Opera Software\\Opera Stable\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Opera Software\\Opera Stable\\Local State'},
                 {'env': 'APPDATA', 'path': 'Opera Software\\Opera Stable\\Local State'}
             ],
             'os_crypt_name': 'chromium',
@@ -482,9 +489,12 @@ class Brave(ChromiumBased):
             'windows_cookies': [
                 {'env': 'LOCALAPPDATA', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Default\\Cookies'},
                 {'env': 'APPDATA', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Default\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'BraveSoftware\\Brave-Browser-Beta\\User Data\\Default\\Cookies'},
                 {'env': 'APPDATA', 'path': 'BraveSoftware\\Brave-Browser-Beta\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'BraveSoftware\\Brave-Browser-Beta\\User Data\\Default\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Default\\Network\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Default\\Network\\Cookies'},
                 {'env': 'APPDATA', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Default\\Network\\Cookies'},
             ],
             'osx_cookies': [
@@ -496,7 +506,9 @@ class Brave(ChromiumBased):
             'windows_keys': [
                 {'env': 'LOCALAPPDATA', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Local State'},
                 {'env': 'APPDATA', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'BraveSoftware\\Brave-Browser\\User Data\\Local State'},
                 {'env': 'LOCALAPPDATA', 'path': 'BraveSoftware\\Brave-Browse-Betar\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'BraveSoftware\\Brave-Browse-Betar\\User Data\\Local State'},
                 {'env': 'APPDATA', 'path': 'BraveSoftware\\Brave-Browser-Beta\\User Data\\Local State'}
             ],
             'os_crypt_name': 'brave',
@@ -518,8 +530,10 @@ class Edge(ChromiumBased):
             'windows_cookies': [
                 {'env': 'LOCALAPPDATA', 'path': 'Microsoft\\Edge\\User Data\\Default\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Microsoft\\Edge\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Microsoft\\Edge\\User Data\\Default\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'Microsoft\\Edge\\User Data\\Default\\Network\\Cookies'},
-                {'env': 'APPDATA', 'path': 'Microsoft\\Edge\\User Data\\Default\\Network\\Cookies'}
+                {'env': 'APPDATA', 'path': 'Microsoft\\Edge\\User Data\\Default\\Network\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Microsoft\\Edge\\User Data\\Default\\Network\\Cookies'}
             ],
             'osx_cookies': [
                 '~/Library/Application Support/Microsoft Edge/Default/Cookies',
@@ -527,6 +541,7 @@ class Edge(ChromiumBased):
             ],
             'windows_keys': [
                 {'env': 'LOCALAPPDATA', 'path': 'Microsoft\\Edge\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Microsoft\\Edge\\User Data\\Local State'},
                 {'env': 'APPDATA', 'path': 'Microsoft\\Edge\\User Data\\Local State'}
             ],
             'os_crypt_name': 'chromium',
@@ -534,6 +549,54 @@ class Edge(ChromiumBased):
             'osx_key_user': 'Microsoft Edge'
         }
         super().__init__(browser='Edge', cookie_file=cookie_file, domain_name=domain_name, key_file=key_file, **args)
+
+
+class Extreme360(ChromiumBased):
+    """Class for Extreme360"""
+
+    def __init__(self, cookie_file=None, domain_name="", key_file=None):
+        args = {
+            'windows_cookies': [
+                {'env': 'LOCALAPPDATA', 'path': '360chrome\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'APPDATA', 'path': '360chrome\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': '360chromeX\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': '360chrome\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'LOCALAPPDATA', 'path': '360chromeX\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'APPDATA', 'path': '360chromeX\\Chrome\\User Data\\Default\\Cookies'},
+                {'env': 'LOCALAPPDATA', 'path': '360chrome\\Chrome\\User Data\\Default\\Network\\Cookies'},
+                {'env': 'APPDATA', 'path': '360chrome\\Chrome\\User Data\\Default\\Network\\Cookies'}
+            ],
+            'windows_keys': [
+                {'env': 'LOCALAPPDATA', 'path': '360chrome\\Chrome\\User Data\\Local State'},
+                {'env': 'APPDATA', 'path': '360chrome\\Chrome\\User Data\\Local State'},
+                {'env': 'LOCALAPPDATA', 'path': '360chromeX\\Chrome\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': '360chromeX\\Chrome\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': '360chrome\\Chrome\\User Data\\Local State'},
+                {'env': 'APPDATA', 'path': '360chromeX\\Chrome\\User Data\\Local State'}
+            ]
+        }
+        super().__init__(browser='Extreme360', cookie_file=cookie_file, domain_name=domain_name, key_file=key_file,
+                         **args)
+
+
+class QQBrowser(ChromiumBased):
+    """Class for QQBrowser"""
+
+    def __init__(self, cookie_file=None, domain_name="", key_file=None):
+        args = {
+            'windows_cookies': [
+                {'env': 'LOCALAPPDATA', 'path': 'Tencent\\QQBrowser\\User Data\\Default\\Cookies'},
+                {'env': 'APPDATA', 'path': 'Tencent\\QQBrowser\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Tencent\\QQBrowser\\User Data\\Default\\Cookies'},
+            ],
+            'windows_keys': [
+                {'env': 'LOCALAPPDATA', 'path': 'Tencent\\QQBrowser\\User Data\\Local State'},
+                {'env': 'APPDATA', 'path': 'Tencent\\QQBrowser\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Tencent\\QQBrowser\\User Data\\Local State'}
+            ],
+        }
+        super().__init__(browser='QQBrowser', cookie_file=cookie_file, domain_name=domain_name, key_file=key_file,
+                         **args)
 
 
 class Vivaldi(ChromiumBased):
@@ -547,8 +610,10 @@ class Vivaldi(ChromiumBased):
             'windows_cookies': [
                 {'env': 'LOCALAPPDATA', 'path': 'Vivaldi\\User Data\\Default\\Cookies'},
                 {'env': 'APPDATA', 'path': 'Vivaldi\\User Data\\Default\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Vivaldi\\User Data\\Default\\Cookies'},
                 {'env': 'LOCALAPPDATA', 'path': 'Vivaldi\\User Data\\Default\\Network\\Cookies'},
-                {'env': 'APPDATA', 'path': 'Vivaldi\\User Data\\Default\\Network\\Cookies'}
+                {'env': 'APPDATA', 'path': 'Vivaldi\\User Data\\Default\\Network\\Cookies'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Vivaldi\\User Data\\Default\\Network\\Cookies'}
             ],
             'osx_cookies': [
                 '~/Library/Application Support/Vivaldi/Default/Cookies',
@@ -556,7 +621,8 @@ class Vivaldi(ChromiumBased):
             ],
             'windows_keys': [
                 {'env': 'LOCALAPPDATA', 'path': 'Vivaldi\\User Data\\Local State'},
-                {'env': 'APPDATA', 'path': 'Vivaldi\\User Data\\Local State'}
+                {'env': 'APPDATA', 'path': 'Vivaldi\\User Data\\Local State'},
+                {'env': 'CUSTOM_BROWSER_DIR', 'path': 'Vivaldi\\User Data\\Local State'}
             ],
             'os_crypt_name': 'chrome',
             'osx_key_service': 'Vivaldi Safe Storage',
@@ -822,6 +888,20 @@ def chrome(cookie_file=None, domain_name="", key_file=None):
     return Chrome(cookie_file, domain_name, key_file).load()
 
 
+def extreme360(cookie_file=None, domain_name="", key_file=None):
+    """Returns a cookiejar of the cookies used by Chrome. Optionally pass in a
+    domain name to only load cookies from the specified domain
+    """
+    return Extreme360(cookie_file, domain_name, key_file).load()
+
+
+def qqbrowser(cookie_file=None, domain_name="", key_file=None):
+    """Returns a cookiejar of the cookies used by Chrome. Optionally pass in a
+    domain name to only load cookies from the specified domain
+    """
+    return QQBrowser(cookie_file, domain_name, key_file).load()
+
+
 def chromium(cookie_file=None, domain_name="", key_file=None):
     """Returns a cookiejar of the cookies used by Chromium. Optionally pass in a
     domain name to only load cookies from the specified domain
@@ -878,7 +958,9 @@ def load(domain_name=""):
     cj = http.cookiejar.CookieJar()
     for cookie_fn in [
         chrome,
-        chromium ,
+        chromium,
+        extreme360,
+        qqbrowser,
         opera,
         brave,
         edge,
@@ -895,5 +977,9 @@ def load(domain_name=""):
 
 
 if __name__ == '__main__':
-    cookie_jar = load("www.douyin.com")
-    print(cookie_jar)
+    # cookie_jar = load("www.douyin.com")
+
+
+    # print(qqbrowser(domain_name="qq.com"))
+    print(extreme360(domain_name="qq.com"))
+    # print(cookie_jar)
