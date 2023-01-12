@@ -4,7 +4,7 @@ let Array = [null, null, null, null, null, null, null, null, null, null, null, n
     null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 10, 11, 12, 13, 14, 15];
 let character = "Dkdpgh4ZKsQB80/Mfvw36XI1R25-WUAlEi7NLboqYTOPuzmFjJnryx9HVGcaStCe=";// 固定
 
-function md5_str_to_array(a) {
+function hex_to_bytearray(a) {
     let array = [];
     for (let idx = 0; idx < a.length;) {
         array.push(Array[a.charCodeAt(idx++)] << 4 | Array[a.charCodeAt(idx++)])
@@ -13,33 +13,34 @@ function md5_str_to_array(a) {
 }
 
 function md5_encrypt(url_path) {
-    return md5_str_to_array(md5(md5_str_to_array(md5(url_path))));
+    return hex_to_bytearray(md5(hex_to_bytearray(md5(url_path))));
 }
 
-function encoding_conversion(a, b, c, e, d, t, f, r, n, o, i, _, x, u, s, l, v, h, p) {
-    let y = new Uint8Array(19);
-    y[0] = a, y[1] = i, y[2] = b, y[3] = _, y[4] = c, y[5] = x, y[6] = e, y[7] = u,
-        y[8] = d, y[9] = s, y[10] = t, y[11] = l, y[12] = f, y[13] = v, y[14] = r, y[15] = h, y[16] = n, y[17] = p, y[18] = o;
-    return String.fromCharCode.apply(null, y);
+function conversion(array) {
+    return String.fromCharCode.apply(null, array);
 }
 
 function encoding_conversion2(a, b) {
-    let c, e = [], d = 0, t = "", r = 0, o = 0, n = 0;
+    let c, e = [], d = 0, t = "";
     for (let f = 0; f < 256; f++) {
         e[f] = f;
     }
-    for (; r < 256; r++) {
-        d = (d + e[r] + a.charCodeAt(r % a.length)) % 256, c = e[r], e[r] = e[d], e[d] = c;
+    for (let r = 0; r < 256; r++) {
+        d = (d + e[r] + a.charCodeAt(r % a.length)) % 256,
+            c = e[r],
+            e[r] = e[d],
+            e[d] = c;
     }
+
     d = 0;
-    for (; o < b.length; o++) {
-        d = (d + e[n = (n + 1) % 256]) % 256, c = e[n], e[n] = e[d], e[d] = c, t += String.fromCharCode(b.charCodeAt(o) ^ e[(e[n] + e[d]) % 256]);
+    for (let o = 0,n = 0; o < b.length; o++) {
+        d = (d + e[n = (n + 1) % 256]) % 256,
+            c = e[n],
+            e[n] = e[d],
+            e[d] = c,
+            t += String.fromCharCode(b.charCodeAt(o) ^ e[(e[n] + e[d]) % 256]);
     }
     return t;
-}
-
-function encoding_conversion3(a, b, c) {
-    return String.fromCharCode(a) + String.fromCharCode(b) + c;
 }
 
 function calculation(a1, a2, a3) {
@@ -50,28 +51,20 @@ function calculation(a1, a2, a3) {
 }
 
 function getXBoGust(url_path) {
-    // 不知道什么东西先固定
-    let array1 = md5_str_to_array(md5("d4+pTKoNjJFb5tMtAC3XB9XrDDxlig1kjbh32u+x5YcwWb/me2pvLTh6ZdBVN5skEeIaOYNixbnFK6wyJdl/Lcy9CDAcpXLLQc3QFKIDQ3KkQYie3n258eLS1YFUqFLDjn7dqCRp1jjoORamU2SV"));
-    let array2 = md5_str_to_array(md5(md5_str_to_array("d41d8cd98f00b204e9800998ecf8427e")));
-    // timer 1672337078.109 可得 DFSzswVuDlhANxXhSkLw9l9WX7rw
-    let url_path_array = md5_encrypt(url_path), timer = new Date().getTime() / 1000, ct = 536919696, array3 = [], array4 = [], str = "";
+    let array1 = [216, 130, 1, 201, 52, 71, 7, 172, 222, 114, 97, 177, 88, 101, 108, 14];
+    let array2 = [89, 173, 178, 78, 243, 205, 190, 2, 151, 240, 91, 57, 88, 39, 69, 63];
+    let url_path_array = md5_encrypt(url_path), str = "";
     let new_array = [
-        64, 0.00390625, 1, 8, // 固定写死
+        0, 0, 1, 8, // 固定写死
         url_path_array[14], url_path_array[15], array2[14], array2[15], array1[14], array1[15],
-        timer >> 24 & 255, timer >> 16 & 255, timer >> 8 & 255, timer >> 0 & 255,
-        ct >> 24 & 255, ct >> 16 & 255, ct >> 8 & 255, ct >> 0 & 255 // 可以固定写死
+       0, 0, 0, 0, // 可以固定写死
+       0, 0, 0, 0 // 可以固定写死
     ];
     new_array.push(new_array.reduce(function (a, b) {
         return a ^ b;
     }));
 
-    for (let idx = 0; idx < new_array.length; idx += 2) {
-        array3.push(new_array[idx])
-        array4.push(new_array[idx + 1])
-    }
-    let garbled_code = encoding_conversion3.apply(null, [2, 255, encoding_conversion2.apply(null,
-        ["ÿ", encoding_conversion.apply(null, array3.concat(array4).slice(0, 19))]
-    )]);
+    let garbled_code = "\x02\xff" + encoding_conversion2("ÿ", conversion(new_array));
 
     for (let idx = 0; idx < garbled_code.length;)
         str += calculation(garbled_code.charCodeAt(idx++), garbled_code.charCodeAt(idx++), garbled_code.charCodeAt(idx++))

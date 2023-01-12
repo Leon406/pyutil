@@ -46,31 +46,31 @@ def _add_xbogus(params):
 
 def _common_params():
     return {
-        "device_platform": "webapp",
+        # "device_platform": "webapp",
         "aid": "6383",
-        "channel": "channel_pc_web",
-        "pc_client_type": "1",
-        "version_code": "170400",
-        "version_name": "17.4.0",
-        "cookie_enabled": "true",
-        "screen_width": "1920",
-        "screen_height": "1080",
-        "browser_language": "zh-CN",
-        "browser_platform": "Win32",
-        "browser_name": "Chrome",
-        "browser_version": "108.0.0.0",
-        "browser_online": "true",
-        "engine_name": "Blink",
-        "engine_version": "108.0.0.0",
-        "os_name": "Windows",
-        "os_version": "10",
-        "cpu_core_num": "12",
-        "device_memory": "8",
-        "platform": "PC",
-        "downlink": "10",
-        "effective_type": "4g",
-        "round_trip_time": "100",
-        "webid": "7186820922069665295",
+        # "channel": "channel_pc_web",
+        # "pc_client_type": "1",
+        # "version_code": "170400",
+        # "version_name": "17.4.0",
+        # "cookie_enabled": "true",
+        # "screen_width": "1920",
+        # "screen_height": "1080",
+        # "browser_language": "zh-CN",
+        # "browser_platform": "Win32",
+        # "browser_name": "Chrome",
+        # "browser_version": "108.0.0.0",
+        # "browser_online": "true",
+        # "engine_name": "Blink",
+        # "engine_version": "108.0.0.0",
+        # "os_name": "Windows",
+        # "os_version": "10",
+        # "cpu_core_num": "12",
+        # "device_memory": "8",
+        # "platform": "PC",
+        # "downlink": "10",
+        # "effective_type": "4g",
+        # "round_trip_time": "100",
+        # "webid": "7186820922069665295",
     }
 
 
@@ -105,11 +105,12 @@ def videos():
     params = _common_params()
     params["sec_user_id"] = "MS4wLjABAAAAQf9alelOm8_s-ODwrxGOtZUAl6g8Yss2oHlrQZi8_EA"
     params["max_cursor"] = 1667207880000
-    params["locate_query"] = False
+    # params["locate_query"] = False
     params["count"] = 10
-    params["show_live_replay_strategy"] = 1
-    params["publish_video_strategy_type"] = 2
+    # params["show_live_replay_strategy"] = 1
+    # params["publish_video_strategy_type"] = 2
     _add_xbogus(params)
+    print(urlencode(params, safe='='))
     response = session.get("https://www.douyin.com/aweme/v1/web/aweme/post/?" + urlencode(params, safe='='),
                            headers=headers)
     print(response.text)
