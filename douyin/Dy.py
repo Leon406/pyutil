@@ -10,7 +10,7 @@ import os
 # 使用nvm安装 node
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
 
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
 
 session = requests.session()
 
@@ -18,7 +18,8 @@ with open('getXBoGust.js', encoding="utf8") as fp:
     js_func = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
 
 headers = {
-    "cookie": "strategyABtestKey=%221672340505.13%22;",
+    #  2023/03/17 后台加入cookie校验  s_v_web_id必须先过验证
+    "cookie": "s_v_web_id=verify_lfbzefx8_MUZSjPw4_8c3j_4FF2_Ax5u_qC1TTxcDRIjs;",
     "referer": "https://www.douyin.com/user",
     "user-agent": UA
 }
@@ -100,15 +101,15 @@ def user():
 def videos():
     """主页视频"""
     headers["cookie"] = headers["cookie"] \
-                        + ";" + "ttwid=1%7CmKYQriuiDg_yUyQYU8SsO0BLRWWHot8TjPqs3zUWUsU%7C1673312168%7Cd2898f5fb30808177f883755ee3e61cf955726cc599aaef1c2574ae264160302; "
+                        + ";" + "ttwid=1|fAd-xtIAXDq0GGfzA6AkbXNJ11-dEzxQspZbqsmrN0w|1673262048|a2150a159edd95de9da46d5efced2d6e0e2414859e4c4d3c896a4544f66dc003; "
 
     params = _common_params()
-    params["sec_user_id"] = "MS4wLjABAAAAQf9alelOm8_s-ODwrxGOtZUAl6g8Yss2oHlrQZi8_EA"
+    params["sec_user_id"] = "MS4wLjABAAAAHBzaYq41eZhmDn9cOTQya8X3-YxoAYTOLm1BM947R_A"
     params["max_cursor"] = 1667207880000
-    # params["locate_query"] = False
+    params["locate_query"] = False
     params["count"] = 10
-    # params["show_live_replay_strategy"] = 1
-    # params["publish_video_strategy_type"] = 2
+    params["show_live_replay_strategy"] = 1
+    params["publish_video_strategy_type"] = 2
     _add_xbogus(params)
     print(urlencode(params, safe='='))
     response = session.get("https://www.douyin.com/aweme/v1/web/aweme/post/?" + urlencode(params, safe='='),
