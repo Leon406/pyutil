@@ -25,7 +25,6 @@ if __name__ == "__main__":
     s = pad(s)
     print(base64.b64encode(crypto.encrypt(s.encode())))
     crypto2 = AES.new(key, AES.MODE_CBC, iv)
-    str()
     print(crypto2.decrypt(base64.decodebytes(b'vkYbld7ogr5nNi/bRp6XMA==')))
 
     b = Hash.b64("leon")

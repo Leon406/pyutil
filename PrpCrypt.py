@@ -3,6 +3,8 @@ import base64
 from Crypto.Cipher import AES
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import algorithms
+from hashlib import md5
+
 
 '''
 AES/CBC/PKCS7Padding 加密解密
@@ -48,8 +50,6 @@ class PrpCrypt:
         return decrypted_text
 
 
-from hashlib import md5
-
 def bytes_to_key(my_data, salt, output=48):
     # extended from https://gist.github.com/gsakkis/4546068
     assert len(salt) == 8, len(salt)
@@ -60,6 +60,8 @@ def bytes_to_key(my_data, salt, output=48):
         key = md5(key + my_data).digest()
         final_key += key
     return final_key[:output]
+
+
 # 加解密
 if __name__ == '__main__':
     passphrase = "583a01a9ba901a3adda7252ebca42c09"
@@ -67,7 +69,6 @@ if __name__ == '__main__':
     r = bytes_to_key(passphrase.encode(), bytes.fromhex(salt), 32 + 16)
     print(r)
     print(''.join(['%02X ' % b for b in r]))
-    pass
     # pc = PrpCrypt()
     # a = "感谢"
     # print(pc.decrypt('/l2MHkUIJ+nUt2vd+A6soQ=='))
