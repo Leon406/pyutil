@@ -6,6 +6,7 @@ import execjs
 import requests
 from urllib.parse import urlencode
 import os
+import urllib.parse
 
 # 使用nvm安装 node
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
@@ -17,9 +18,12 @@ session = requests.session()
 with open('getXBoGust.js', encoding="utf8") as fp:
     js_func = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
 
+with open('X-Bogus.js', encoding="utf8") as fp:
+    js_func2 = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
+
 headers = {
     #  2023/03/17 后台加入cookie校验  s_v_web_id必须先过验证
-    "cookie": "s_v_web_id=verify_lfbzefx8_MUZSjPw4_8c3j_4FF2_Ax5u_qC1TTxcDRIjs;",
+    "cookie": "ttwid=1%7CfAd-xtIAXDq0GGfzA6AkbXNJ11-dEzxQspZbqsmrN0w%7C1673262048%7Ca2150a159edd95de9da46d5efced2d6e0e2414859e4c4d3c896a4544f66dc003; ",
     "referer": "https://www.douyin.com/user",
     "user-agent": UA
 }
@@ -31,7 +35,7 @@ def comment_list():
     params["cursor"] = "0"
     params["count"] = "20"
     params["aweme_id"] = "7166234565919477005"
-    _add_xbogus(params)
+    _add_xbogus2(params, UA)
     print(params["X-Bogus"])
 
     response = session.get("https://www.douyin.com/aweme/v1/web/comment/list/?" + urlencode(params, safe='='),
@@ -45,17 +49,23 @@ def _add_xbogus(params):
     params["X-Bogus"] = js_func.call("getXBoGust", url_path)
 
 
+def _add_xbogus2(params, user_agent):
+    url_path = urlencode(params, safe='=')
+    print(url_path, user_agent)
+    params["X-Bogus"] = js_func2.call("sign", url_path, user_agent)
+
+
 def _common_params():
     return {
-        # "device_platform": "webapp",
+        "device_platform": "webapp",
         "aid": "6383",
         # "channel": "channel_pc_web",
         # "pc_client_type": "1",
         # "version_code": "170400",
         # "version_name": "17.4.0",
         # "cookie_enabled": "true",
-        # "screen_width": "1920",
-        # "screen_height": "1080",
+        "screen_width": "1920",
+        "screen_height": "1080",
         # "browser_language": "zh-CN",
         # "browser_platform": "Win32",
         # "browser_name": "Chrome",
@@ -63,14 +73,14 @@ def _common_params():
         # "browser_online": "true",
         # "engine_name": "Blink",
         # "engine_version": "108.0.0.0",
-        # "os_name": "Windows",
-        # "os_version": "10",
-        # "cpu_core_num": "12",
-        # "device_memory": "8",
-        # "platform": "PC",
-        # "downlink": "10",
-        # "effective_type": "4g",
-        # "round_trip_time": "100",
+        "os_name": "Windows",
+        "os_version": "10",
+        "cpu_core_num": "12",
+        "device_memory": "8",
+        "platform": "PC",
+        "downlink": "10",
+        "effective_type": "4g",
+        "round_trip_time": "100",
         # "webid": "7186820922069665295",
     }
 
@@ -91,7 +101,7 @@ def user():
     params = _common_params()
     # params["publish_video_strategy_type"] = "2"
     params["sec_user_id"] = "MS4wLjABAAAAQf9alelOm8_s-ODwrxGOtZUAl6g8Yss2oHlrQZi8_EA"
-    _add_xbogus(params)
+    _add_xbogus2(params, UA)
     response = session.get("https://www.douyin.com/aweme/v1/web/user/profile/other/?" + urlencode(params, safe='='),
                            headers=headers)
     print(response.text)
@@ -100,9 +110,6 @@ def user():
 
 def videos():
     """主页视频"""
-    headers["cookie"] = headers["cookie"] \
-                        + ";" + "ttwid=1|fAd-xtIAXDq0GGfzA6AkbXNJ11-dEzxQspZbqsmrN0w|1673262048|a2150a159edd95de9da46d5efced2d6e0e2414859e4c4d3c896a4544f66dc003; "
-
     params = _common_params()
     params["sec_user_id"] = "MS4wLjABAAAAHBzaYq41eZhmDn9cOTQya8X3-YxoAYTOLm1BM947R_A"
     params["max_cursor"] = 1667207880000
@@ -110,7 +117,7 @@ def videos():
     params["count"] = 10
     params["show_live_replay_strategy"] = 1
     params["publish_video_strategy_type"] = 2
-    _add_xbogus(params)
+    _add_xbogus2(params, UA)
     print(urlencode(params, safe='='))
     response = session.get("https://www.douyin.com/aweme/v1/web/aweme/post/?" + urlencode(params, safe='='),
                            headers=headers)
@@ -130,4 +137,5 @@ if __name__ == '__main__':
     # social_count()
     # user()
     # 不再编写完整爬取代码,请自行参考Douyin.py改写
+    # 2023年4月3日12:47:40 可能需要请求多次才能获取到结果
     videos()
