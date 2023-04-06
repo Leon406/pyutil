@@ -6,7 +6,6 @@ import execjs
 import requests
 from urllib.parse import urlencode
 import os
-import urllib.parse
 
 # 使用nvm安装 node
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
@@ -53,6 +52,7 @@ def _add_xbogus2(params, user_agent):
     url_path = urlencode(params, safe='=')
     print(url_path, user_agent)
     params["X-Bogus"] = js_func2.call("sign", url_path, user_agent)
+    print( params["X-Bogus"])
 
 
 def _common_params():

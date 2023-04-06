@@ -21,7 +21,7 @@ def generate_request_params():
         "param": new_url,
         "X-Bogus": xbogus,
         "msToken": generate_random_str(),
-        "ttwid": ttwid(),
+        # "ttwid": ttwid(),
     }
     return jsonify(response_data)
 
