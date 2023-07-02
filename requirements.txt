@@ -1,4 +1,4 @@
-requests==2.28.1
+requests
 pycryptodome
 bs4
 grequests~=0.6.0
@@ -12,3 +12,4 @@ pip
 tinyec
 flask
 ddddocr
+translators
