@@ -10,6 +10,26 @@ import sys
 
 pool = ThreadPoolExecutor(max_workers=16)
 start_time = time.time()
+cn_translator = [
+    # 无法正常翻译
+    # "google",
+    # "bing",
+    # "yeekit",
+    # "volcEngine",
+    # "niutrans",
+    # "cloudYi",
+    "youdao",
+    "sogou",
+    "bing",
+
+    "baidu",
+    "caiyun",
+    "iflyrec",
+    "iciba",
+    "alibaba",
+
+    # "qqFanyi"
+]
 # refer https://github.com/UlionTse/translators
 TYPE_DICT = {
     "baidu": "百度翻译",
@@ -28,25 +48,6 @@ TYPE_DICT = {
     "yeekit": "Yeekit中译语通",
     "lingva": "lingva",
 }
-
-cn_translator = [
-    # 无法正常翻译
-    # "google",
-    # "bing",
-    # "yeekit",
-    # "volcEngine",
-    # "niutrans",
-    # "cloudYi",
-    "baidu",
-    "bing",
-    "youdao",
-    "iciba",
-    "alibaba",
-    "sogou",
-    "caiyun",
-    "iflyrec",
-    "qqFanyi"
-]
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
@@ -159,8 +160,8 @@ def translators(text: str, translator: str = "bing", src: str = "en", target: st
 
 
 results = [pool.submit(translators, originalText, i) for i in cn_translator]
-results.append(pool.submit(google_mirror, originalText))
-results.append(pool.submit(lingva, originalText))
+results.insert(0, pool.submit(google_mirror, originalText))
+results.insert(4, pool.submit(lingva, originalText))
 for r in results:
     t, translated = r.result()
     _output(TYPE_DICT[t], translated)
