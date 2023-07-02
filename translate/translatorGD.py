@@ -13,6 +13,8 @@ originalText = "Please input what you want to translate!"
 fromLanguage = "en"
 toLanguage = "zh-CN"
 
+debug = False
+
 # 可以手动指定翻译参数,默认英译中, 中译英可参考如下
 # python translatorGD.py "text to translate" zh-CN en
 
@@ -22,7 +24,6 @@ if arg_size > 2:
     fromLanguage = sys.argv[2]
 if arg_size > 3:
     toLanguage = sys.argv[3]
-
 
 pool = ThreadPoolExecutor(max_workers=16)
 start_time = time.time()
@@ -69,39 +70,41 @@ TYPE_DICT = {
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 css = """<style type="text/css">
-.engine {
-  font-family: "MiSansVF";
-  font-size: 18px;
-  color: #578bc5;
-}
-.originalText {
-    font-size: 120%;
-    font-family: "MiSansVF";
-    font-weight: 600;
-    display: inline-block;
-    margin: 0rem 0rem 0rem 0rem;
-    color: #2a5598;
-    margin-bottom: 0.6rem;
-}
-.frame {
-    margin: 1rem 0.5rem 0.5rem 0;
-    padding: 0.7rem 0.5rem 0.5rem 0;
-    border-top: 3px dashed #eaeef6;
-}
-definition {
-    font-family: "MiSansVF";
-    color: #2a5598;
-    height: 120px;
-    padding: 0.05em;
-    font-weight: 500;
-    font-size: 16px;
-}
-</style>"""
+    .engine {
+      font-family: "MiSansVF";
+      font-size: 18px;
+      color: #578bc5;
+    }
+    .originalText {
+        font-size: 120%;
+        font-family: "MiSansVF";
+        font-weight: 600;
+        display: inline-block;
+        margin: 0rem 0rem 0rem 0rem;
+        color: #2a5598;
+        margin-bottom: 0.6rem;
+    }
+    .frame {
+        margin: 1rem 0.5rem 0.5rem 0;
+        padding: 0.7rem 0.5rem 0.5rem 0;
+        border-top: 3px dashed #eaeef6;
+    }
+    definition {
+        font-family: "MiSansVF";
+        color: #2a5598;
+        height: 120px;
+        padding: 0.05em;
+        font-weight: 500;
+        font-size: 16px;
+    }
+    </style>"""
 
-print(css)
 
-print('<div class="originalText">' + originalText + '</div>')
-print('<br><br>')
+def html():
+    print(css)
+    print('<div class="originalText">' + originalText + '</div>')
+    print('<br><br>')
+
 
 servers = [
     "st.tokhmi.xyz",
@@ -128,7 +131,7 @@ def check_servers():
                 print("~~~~~~")
         except Exception as e:
             print("~~~~~~ ", e)
-    print(okServers)
+    # print(okServers)
 
 
 def google_mirror(text: str, src="en", target="zh-CN"):
@@ -142,17 +145,20 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 
         return "google", trans.json()["translated-text"]
     except Exception as e:
-        print(e)
+        if debug:
+            print(e)
         return "google", "错误"
 
 
 # https://github.com/CopyTranslator/CopyTranslator/blob/master/src/common/translate/lingva.ts
 def lingva(text, src="en", target="zh"):
     try:
-        resp = requests.get(f"https://lingva.ml/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}")
+        resp = requests.get(
+            f"https://lingva.ml/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}")
         return "lingva", resp.json()["translation"]
     except Exception as e:
-        print(e)
+        if debug:
+            print(e)
         return "lingva", "错误"
 
 
@@ -170,13 +176,16 @@ def translators(text: str, translator: str = "bing", src: str = "zh", target: st
                                             timeout=3.0)
         return translator, translated_text
     except Exception as e:
-        print(e)
+        if debug:
+            print(e)
         return translator, "错误"
 
 
 results = [pool.submit(translators, originalText, i, fromLanguage, toLanguage) for i in cn_translator]
 results.insert(0, pool.submit(google_mirror, originalText, fromLanguage, toLanguage))
 results.insert(4, pool.submit(lingva, originalText, fromLanguage, toLanguage))
+
+html()
 for r in results:
     t, translated = r.result()
     _output(TYPE_DICT[t], translated)
