@@ -8,8 +8,25 @@ import translators as ts
 
 import sys
 
+arg_size = len(sys.argv)
+originalText = "Please input what you want to translate!"
+fromLanguage = "en"
+toLanguage = "zh-CN"
+
+# 可以手动指定翻译参数,默认英译中, 中译英可参考如下
+# python translatorGD.py "text to translate" zh-CN en
+
+if arg_size > 1:
+    originalText = sys.argv[1]
+if arg_size > 2:
+    fromLanguage = sys.argv[2]
+if arg_size > 3:
+    toLanguage = sys.argv[3]
+
+
 pool = ThreadPoolExecutor(max_workers=16)
 start_time = time.time()
+# 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
 cn_translator = [
     # 无法正常翻译
     # "google",
@@ -81,8 +98,6 @@ definition {
 }
 </style>"""
 
-originalText = sys.argv[1]
-
 print(css)
 
 print('<div class="originalText">' + originalText + '</div>')
@@ -134,11 +149,11 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 # https://github.com/CopyTranslator/CopyTranslator/blob/master/src/common/translate/lingva.ts
 def lingva(text, src="en", target="zh"):
     try:
-        r = requests.get(f"https://lingva.ml/api/v1/{src}/{target}/{quote(text)}")
-        return "lingva", r.json()["translation"]
+        resp = requests.get(f"https://lingva.ml/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}")
+        return "lingva", resp.json()["translation"]
     except Exception as e:
         print(e)
-        return "lingua", "错误"
+        return "lingva", "错误"
 
 
 def _output(engine: str, definition: str):
@@ -149,7 +164,7 @@ def _output(engine: str, definition: str):
     print("<br>")
 
 
-def translators(text: str, translator: str = "bing", src: str = "en", target: str = "zh-CN"):
+def translators(text: str, translator: str = "bing", src: str = "zh", target: str = "en"):
     try:
         translated_text = ts.translate_text(text, from_language=src, to_language=target, translator=translator,
                                             timeout=3.0)
@@ -159,9 +174,9 @@ def translators(text: str, translator: str = "bing", src: str = "en", target: st
         return translator, "错误"
 
 
-results = [pool.submit(translators, originalText, i) for i in cn_translator]
-results.insert(0, pool.submit(google_mirror, originalText))
-results.insert(4, pool.submit(lingva, originalText))
+results = [pool.submit(translators, originalText, i, fromLanguage, toLanguage) for i in cn_translator]
+results.insert(0, pool.submit(google_mirror, originalText, fromLanguage, toLanguage))
+results.insert(4, pool.submit(lingva, originalText, fromLanguage, toLanguage))
 for r in results:
     t, translated = r.result()
     _output(TYPE_DICT[t], translated)
