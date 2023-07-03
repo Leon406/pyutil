@@ -141,7 +141,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
                                      "from": src,
                                      "to": target,
                                      "text": text
-                                     })
+                                     }, timeout=3.0)
 
         return "google", trans.json()["translated-text"]
     except Exception as e:
@@ -154,7 +154,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 def lingva(text, src="en", target="zh"):
     try:
         resp = requests.get(
-            f"https://lingva.ml/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}")
+            f"https://lingva.ml/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}", timeout=3.0)
         return "lingva", resp.json()["translation"]
     except Exception as e:
         if debug:
