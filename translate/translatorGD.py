@@ -118,7 +118,11 @@ servers = [
     "st.privacydev.net",
     "translate.beparanoid.de",
 ]
-okServers = ["st.tokhmi.xyz"]
+okServers = ["simplytranslate.pussthecat.org",
+             "translate.tiekoetter.com",
+             "tl.vern.cc",
+             "translate.catvibers.me",
+             "t.opnxng.com"]
 
 
 def check_servers():
