@@ -118,11 +118,24 @@ servers = [
     "st.privacydev.net",
     "translate.beparanoid.de",
 ]
-okServers = ["simplytranslate.pussthecat.org",
-             "translate.tiekoetter.com",
-             "tl.vern.cc",
-             "translate.catvibers.me",
-             "t.opnxng.com"]
+
+lingvaServers = [
+    "lingva.ml",
+    "translate.igna.wtf",
+    "translate.plausibility.cloud",
+    "lingva.lunar.icu",
+    "translate.projectsegfau.lt",
+    "translate.dr460nf1r3.org",
+    "lingva.garudalinux.org",
+    "translate.jae.fi"
+]
+lingvaOkServers = ['translate.plausibility.cloud', 'translate.dr460nf1r3.org']
+okServers = ['translate.bus-hit.me',
+             'simplytranslate.pussthecat.org',
+             'translate.tiekoetter.com',
+             'simplytranslate.esmailelbob.xyz',
+             'translate.catvibers.me',
+             't.opnxng.com']
 
 
 def check_servers():
@@ -135,7 +148,20 @@ def check_servers():
                 print("~~~~~~")
         except Exception as e:
             print("~~~~~~ ", e)
-    # print(okServers)
+    for server in lingvaServers:
+        try:
+            r = requests.get(f"https://{server}", timeout=1)
+            if r.status_code == 200:
+                lingvaOkServers.append(server)
+            else:
+                print("~~~~~~")
+        except Exception as e:
+            print("~~~~~~ ", e)
+    print(okServers)
+    print(lingvaOkServers)
+
+
+# check_servers()
 
 
 def google_mirror(text: str, src="en", target="zh-CN"):
@@ -155,10 +181,12 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 
 
 # https://github.com/CopyTranslator/CopyTranslator/blob/master/src/common/translate/lingva.ts
+# https://github.com/thedaviddelta/lingva-translate
 def lingva(text, src="en", target="zh"):
     try:
         resp = requests.get(
-            f"https://lingva.ml/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}", timeout=3.0)
+            f"https://{lingvaOkServers[0]}/api/v1/{src.replace('-CN', '')}/{target.replace('-CN', '')}/{quote(text)}",
+            timeout=3.0)
         return "lingva", resp.json()["translation"]
     except Exception as e:
         if debug:
