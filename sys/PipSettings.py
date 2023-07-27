@@ -1,8 +1,6 @@
 import os
 import platform
-from subprocess import call
-
-from pip._internal.utils.misc import get_installed_distributions
+from subprocess import check_output, call
 
 
 # requestments.txt  pipreqs --debug  --pypi-server http://pypi.douban.com/simple ./ --encoding=utf-8
@@ -36,11 +34,20 @@ def pip_source():
         exit("Your platform is unknow!")
 
 
-def pipUpdateAll():
-    for dist in get_installed_distributions():
-        call('pip install --user --upgrade ' + dist.project_name, shell=True)
+def upgrade_all():
+    output = check_output(['pip', 'list'])
+    # 处理输出
+    libraries = output.decode().split('\n')
+    installed_libraries = [lib.split() for lib in libraries
+                           # if 'grequests' in lib
+                           ]
+    # 打印结果
+    for library in installed_libraries:
+        if len(library) > 1:
+            print(library[0] + ' ' + library[1])
+            call('pip install --user --upgrade ' + library[0], shell=True)
 
 
 if __name__ == "__main__":
     # pip_source()
-    pipUpdateAll()
+    upgrade_all()
