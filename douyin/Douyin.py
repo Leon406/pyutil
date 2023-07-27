@@ -9,6 +9,8 @@ from dateutil.relativedelta import relativedelta
 
 from douyin.browser_cookie3 import load
 
+# 代码仅供参考,已失效
+
 
 def write(path, text):
     with open(path, 'a', encoding='utf-8') as f:

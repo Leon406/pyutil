@@ -10,6 +10,7 @@ import os
 # 使用nvm安装 node
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
 
+# UA必须跟获取cookie的浏览器一致
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
 
 session = requests.session()
@@ -138,4 +139,5 @@ if __name__ == '__main__':
     # user()
     # 不再编写完整爬取代码,请自行参考Douyin.py改写
     # 2023年4月3日12:47:40 可能需要请求多次才能获取到结果
+    # 必须更换 UA/Cookie 2023年7月27日10:21:42 测试可用
     videos()
