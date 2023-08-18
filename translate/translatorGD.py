@@ -30,8 +30,9 @@ start_time = time.time()
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
 cn_translator = [
     # 无法正常翻译
+    "deepl",
     # "google",
-    # "bing",
+    #  "bing",
     # "yeekit",
     # "volcEngine",
     # "niutrans",
@@ -52,6 +53,7 @@ cn_translator = [
 TYPE_DICT = {
     "baidu": "百度翻译",
     "bing": "必应",
+    "deepl": "Deepl",
     "youdao": "有道智云",
     "iciba": "金山词霸",
     "alibaba": "阿里翻译",
@@ -107,17 +109,15 @@ def html():
 
 
 servers = [
-    "st.tokhmi.xyz",
-    "translate.riverside.rocks",
-    "simplytranslate.manerakai.com",
-    "simplytranslate.pussthecat.org",
-    "translate.tiekoetter.com",
-    "simplytranslate.esmailelbob.xyz",
-    "tl.vern.cc",
-    "translate.slipfox.xyz",
-    "st.privacydev.net",
-    "translate.beparanoid.de",
+    'https://simplytranslate.pussthecat.org',
+    'https://translate.tiekoetter.com',
+    'https://simplytranslate.esmailelbob.xyz',
+    'https://translate.slipfox.xyz',
+    'https://t.opnxng.com',
+    'https://simplytranslate.manerakai.com'
 ]
+
+
 
 lingvaServers = [
     "lingva.ml",
@@ -130,11 +130,12 @@ lingvaServers = [
     "translate.jae.fi"
 ]
 lingvaOkServers = ['translate.plausibility.cloud', 'translate.dr460nf1r3.org']
-okServers = ['translate.bus-hit.me',
+okServers = [
              'simplytranslate.pussthecat.org',
              'translate.tiekoetter.com',
              'simplytranslate.esmailelbob.xyz',
              'translate.catvibers.me',
+             'translate.bus-hit.me',
              't.opnxng.com']
 
 
@@ -166,7 +167,7 @@ def check_servers():
 
 def google_mirror(text: str, src="en", target="zh-CN"):
     try:
-        trans = requests.get(f"https://{okServers[0]}/api/translate/",
+        trans = requests.get(f"https://{okServers[1]}/api/translate/",
                              params={"engine": "google",
                                      "from": src,
                                      "to": target,
@@ -223,3 +224,5 @@ for r in results:
     _output(TYPE_DICT[t], translated)
 
 print(f"It takes {(time.time() - start_time):.2f} seconds")
+
+
