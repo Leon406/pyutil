@@ -118,7 +118,6 @@ servers = [
 ]
 
 
-
 lingvaServers = [
     "lingva.ml",
     "translate.igna.wtf",

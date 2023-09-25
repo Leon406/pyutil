@@ -1,0 +1,1 @@
+nohup python TranslatorServer.py >> /opt/ocr/console.txt 2>&1 &

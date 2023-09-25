@@ -28,7 +28,7 @@ def is_server_ok(url: str, timeout: int = 1):
 
 def check_servers(domains):
     ok = []
-    results = [pool.submit(is_server_ok, f"https://{server}", 1) for server in domains]
+    results = [pool.submit(is_server_ok, f"https://{server}", 3) for server in domains]
     for r in results:
         state, url = r.result()
         if state:
