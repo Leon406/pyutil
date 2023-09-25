@@ -30,7 +30,7 @@ cn_translator = [
     "sogou",
     "bing",
     "baidu",
-    "caiyun",
+    # "caiyun",
     "iflyrec",
     "iciba",
     "alibaba",
@@ -57,43 +57,74 @@ TYPE_DICT = {
 }
 
 servers = [
-    "https://st.alefvanoon.xyz",
-    "https://simplytranslate.pussthecat.org",
-    "https://simplytranslate.esmailelbob.xyz",
-    "https://simplytranslate.leemoon.network",
-    "https://st.odyssey346.dev",
+    "simplytranslate.org",
+    "st.alefvanoon.xyz",
+    "translate.josias.dev",
+    "translate.namazso.eu",
+    "translate.riverside.rocks",
+    "st.manerakai.com",
+    "translate.bus-hit.me",
+    "simplytranslate.pussthecat.org",
+    "translate.northboot.xyz",
+    "translate.tiekoetter.com",
+    "simplytranslate.esmailelbob.xyz",
+    "translate.syncpundit.com",
+    "tl.vern.cc",
+    "translate.slipfox.xyz",
+    "st.privacydev.net",
+    "translate.leptons.xyz",
+    "translate.catvibers.me",
+    "t.opnxng.com",
+    "simplytranslate.leemoon.network",
+    "simplytranslate.manerakai.com",
+    "st.odyssey346.dev",
+    "st.tokhmi.xyz",
+    "translate.priv.pw",
 ]
 
-
-okServers = [
-    "https://st.alefvanoon.xyz",
-    "https://simplytranslate.pussthecat.org",
-    "https://simplytranslate.esmailelbob.xyz",
-    "https://simplytranslate.leemoon.network",
-    "https://st.odyssey346.dev",
-]
+okServers = []
 
 
-def check_servers():
-    for server in servers:
-        try:
-            r = requests.get(f"https://{server}", timeout=1)
-            if r.status_code == 200:
-                okServers.append(server)
-            else:
-                print("~~~~~~")
-        except Exception as e:
-            print("~~~~~~ ", e)
-    print(okServers)
+def is_server_ok(url: str, timeout: int = 3):
+    try:
+        # r = requests.get(url, timeout=timeout)
+        r = requests.get(f"{url}/api/translate/",
+                         params={"engine": "google",
+                                 "from": "auto",
+                                 "to": "zh-CN",
+                                 "text": "text"
+                                 }, timeout=timeout)
+        if r.status_code == 200:
+            print(url)
+            print(r.text)
+            return True, url
+        else:
+            print("~~~~~~")
+            return False, url
+    except Exception as e:
+        print("~~~~~~ ", e)
+        return False, url
 
 
-check_servers()
+def check_servers(domains):
+    ok = []
+    results = [pool.submit(is_server_ok, f"https://{server}", 3) for server in domains]
+    for r in results:
+        state, url = r.result()
+        if state:
+            ok.append(url)
+    return ok
+
+
+okServers.extend(check_servers(servers))
+
+print(okServers)
 
 
 def google_mirror(text: str, src="en", target="zh-CN"):
     try:
         trans = requests.get(
-            f"https://{okServers[-1]}/api/translate/",
+            f"{okServers[-1]}/api/translate/",
             params={"engine": "google", "from": src, "to": target, "text": text},
             timeout=REQ_TIMEOUT,
         )
@@ -104,7 +135,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 
 
 def translators(
-    text: str, translator: str = "bing", src: str = "zh", target: str = "en"
+        text: str, translator: str = "bing", src: str = "zh", target: str = "en"
 ):
     try:
         translated_text = ts.translate_text(
