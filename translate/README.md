@@ -1,3 +1,5 @@
+# 外部程序
+
 ## 依赖
 
 ```
@@ -44,6 +46,52 @@ python "translatorGD.py" "%GDWORD%" zh-CN en
 
 ![image-20230704105727679](image-20230704105727679.png)
 
-## 感谢
+## 
+
+# Web服务
+
+## 依赖
+
+```
+# 在线服务需要额外安装, 注意translators依赖 需要5.8.5及以上
+pip install -r requirements.txt
+```
+
+## 配置项(service.conf)
+
+```
+[service]
+listen = 0.0.0.0
+port = 5000
+worker_threads = 16
+req_timeout = 3
+```
+
+## 服务启动
+
+```
+bash startServer
+```
+
+## 测试
+
+```
+# Windows
+test.bat
+# linux
+bash test.sh
+```
+
+## 在线配置参数
+
+http://127.0.0.1:5000/?from=en&to=zh-CN&d=hello
+
+- from  来源语言,默认en
+- to  目标语言, 默认zh-CN
+- d   需要翻译的内容
+
+
+
+# 感谢
 
 https://github.com/UlionTse/translators 翻译库
