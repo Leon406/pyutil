@@ -7,7 +7,6 @@ pool = ThreadPoolExecutor(max_workers=16)
 
 def is_server_ok(url: str, timeout: int = 1):
     try:
-        # r = requests.get(url, timeout=timeout)
         r = requests.get(f"{url}/api/translate/",
                          params={"engine": "google",
                                  "from": "auto",
@@ -15,9 +14,7 @@ def is_server_ok(url: str, timeout: int = 1):
                                  "text": "text"
                                  }, timeout=timeout)
         if r.status_code == 200:
-            print(url)
-            print(r.text)
-            return True, url
+            return "translated-text" in r.text, url
         else:
             print("~~~~~~")
             return False, url
