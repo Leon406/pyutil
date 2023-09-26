@@ -12,9 +12,11 @@ config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
 service = config["service"]
 REQ_TIMEOUT = int(service["req_timeout"])
+PORT = int(service["port"])
+WORKERS = int(service["worker_threads"])
 
 app = Flask(__name__)
-pool = ThreadPoolExecutor(max_workers=int(service["worker_threads"]))
+pool = ThreadPoolExecutor(max_workers=WORKERS)
 start_time = time.time()
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
 cn_translator = [
@@ -28,7 +30,7 @@ cn_translator = [
     # "cloudYi",
     "youdao",
     "sogou",
-    "bing",
+    # "bing",
     "baidu",
     # "caiyun",
     "iflyrec",
@@ -88,12 +90,11 @@ okServers = []
 def is_server_ok(url: str, timeout: int = 3):
     try:
         # r = requests.get(url, timeout=timeout)
-        r = requests.get(f"{url}/api/translate/",
-                         params={"engine": "google",
-                                 "from": "auto",
-                                 "to": "zh-CN",
-                                 "text": "text"
-                                 }, timeout=timeout)
+        r = requests.get(
+            f"{url}/api/translate/",
+            params={"engine": "google", "from": "auto", "to": "zh-CN", "text": "text"},
+            timeout=timeout,
+        )
         if r.status_code == 200:
             print(url)
             print(r.text)
@@ -124,7 +125,7 @@ print(okServers)
 def google_mirror(text: str, src="en", target="zh-CN"):
     try:
         trans = requests.get(
-            f"{okServers[-1]}/api/translate/",
+            f"{okServers[0]}/api/translate/",
             params={"engine": "google", "from": src, "to": target, "text": text},
             timeout=REQ_TIMEOUT,
         )
@@ -136,7 +137,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 
 
 def translators(
-        text: str, translator: str = "bing", src: str = "zh", target: str = "en"
+    text: str, translator: str = "bing", src: str = "zh", target: str = "en"
 ):
     try:
         translated_text = ts.translate_text(
@@ -180,10 +181,10 @@ def index():
 
 if __name__ == "__main__":
     if debug:
-        app.run(host=service["listen"], port=service["port"], debug=False)
+        app.run(host=service["listen"], port=PORT, debug=False)
     else:
         # 改用waitress WSGI
         from waitress import serve
 
-        serve(app, host=service["listen"], port=int(service["port"]))
+        serve(app, host=service["listen"], port=PORT)
         app.run()
