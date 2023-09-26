@@ -131,6 +131,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 
         return "google", trans.json()["translated-text"]
     except Exception as e:
+        print(e)
         return "google", "错误"
 
 
@@ -147,6 +148,7 @@ def translators(
         )
         return translator, translated_text
     except Exception as e:
+        print(e)
         return translator, "错误"
 
 
