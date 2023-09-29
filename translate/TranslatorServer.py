@@ -6,7 +6,7 @@ import requests
 import translators as ts
 from flask import Flask, render_template, request
 
-debug = False
+debug = True
 # 读取service.conf配置文件
 config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
@@ -85,6 +85,11 @@ servers = [
 ]
 
 okServers = []
+# 自行注册无需信用卡,免费20W/月  https://deepl-pro.com/#/translate
+DEEPL_THIRD_SERVER = "https://api.deepl-pro.com"
+auth = "2f8a0549-d214-4509-b880-98618419f562:dp"
+
+deepl_auth_keys = [auth]
 
 
 def is_server_ok(url: str, timeout: int = 3):
@@ -133,8 +138,24 @@ def google_mirror(text: str, src="en", target="zh-CN"):
         return "google", "错误"
 
 
+def deepl_third(sentence: str, src="EN", target="ZH"):
+    target = target.split("-")[0].upper()
+    src = src.split("-")[0].upper()
+    r = requests.post(f"{DEEPL_THIRD_SERVER}/v2/translate",
+                      data={"text": sentence, "target_lang": target, "source_lang": src},
+                      headers={
+                          "Content-Type": "application/x-www-form-urlencoded",
+                          "Authorization": f"DeepL-Auth-Key {deepl_auth_keys[-1]}"})
+    return "deepl", r.json()["translations"][0]["text"]
+
+
+def deepl_third_check(auth=deepl_auth_keys[-1]):
+    return requests.get(f"{DEEPL_THIRD_SERVER}/v2/referral_usage", headers={
+        "Authorization": f"DeepL-Auth-Key {auth}"}).json()["referral_limit"]
+
+
 def translators(
-    text: str, translator: str = "bing", src: str = "zh", target: str = "en"
+        text: str, translator: str = "bing", src: str = "zh", target: str = "en"
 ):
     try:
         translated_text = ts.translate_text(
@@ -168,12 +189,36 @@ def index():
         for i in cn_translator
     ]
     results.insert(
-        0, pool.submit(google_mirror, originalText, fromLanguage, toLanguage)
+        0, pool.submit(deepl_third, originalText, fromLanguage, toLanguage)
+    )
+    results.insert(
+        1, pool.submit(google_mirror, originalText, fromLanguage, toLanguage)
     )
     for r in results:
         t, translated = r.result()
         trans.append([TYPE_DICT[t], translated])
     return render_template("index.html", originalText=originalText, translators=trans)
+
+
+@app.route("/add_deepl_auth")
+def deepl_add():
+    if request.args["auth"]:
+        deepl_auth_keys.append(request.args["auth"])
+    return deepl_auth_keys
+
+
+@app.route("/delete_deepl_auth")
+def deepl_remove():
+    if request.args["auth"]:
+        deepl_auth_keys.remove(request.args["auth"])
+    return deepl_auth_keys
+
+
+@app.route("/deepl_query")
+def deepl_query():
+    auth = request.args["auth"] if "auth" in request.args else deepl_auth_keys[-1]
+    count = deepl_third_check(auth)
+    return {"auth": auth, "quota": count}
 
 
 if __name__ == "__main__":

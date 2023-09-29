@@ -59,5 +59,27 @@ servers = [
     "translate.priv.pw",
 ]
 
+server = "https://api.deepl-pro.com"
+auth = "2f8a0549-d214-4509-b880-98618419f562:dp"
+
+
+def deepl_third(sentence: str, src="EN", target="ZH"):
+    target = target.split("-")[0].upper()
+    src = src.split("-")[0].upper()
+    r = requests.post(f"{server}/v2/translate",
+                      data={"text": sentence, "target_lang": target, "source_lang": src},
+                      headers={
+                          "Content-Type": "application/x-www-form-urlencoded",
+                          "Authorization": f"DeepL-Auth-Key {auth}"})
+    return r.json()["translations"][0]["text"]
+
+
+def deepl_third_check():
+    return requests.get(f"{server}/v2/referral_usage", headers={
+        "Authorization": f"DeepL-Auth-Key {auth}"}).json()["referral_limit"]
+
+
 if __name__ == '__main__':
-    print(check_servers(servers))
+    # print(check_servers(servers))
+    print(deepl_third("Hello world!"))
+    print(deepl_third_check())
