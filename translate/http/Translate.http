@@ -3,4 +3,4 @@ GET http://127.0.0.1:5002/add_deepl_auth?auth=ssss
 ### add auth
 GET http://127.0.0.1:5002/delete_deepl_auth?auth=ssss
 ### query
-GET http://127.0.0.1:5002/deepl_query?auth=2f8a0549-d214-4509-b880-98618419f562:dp
+GET http://127.0.0.1:5002/deepl_query?auth=26488cf9-4284-421b-ae82-0679a81d3613:dp
