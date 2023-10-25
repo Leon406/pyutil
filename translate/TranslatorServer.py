@@ -6,7 +6,7 @@ import requests
 import translators as ts
 from flask import Flask, render_template, request
 
-debug = True
+debug = False
 # 读取service.conf配置文件
 config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
@@ -146,7 +146,14 @@ def deepl_third(sentence: str, src="EN", target="ZH"):
                       headers={
                           "Content-Type": "application/x-www-form-urlencoded",
                           "Authorization": f"DeepL-Auth-Key {deepl_auth_keys[-1]}"})
-    return "deepl", r.json()["translations"][0]["text"]
+    print(r.json())
+    try:
+        if "msg" in r.json():
+            return "deepl", r.json()["msg"]
+        return "deepl", r.json()["translations"][0]["text"]
+    except Exception as e:
+        print(e)
+        return "deepl", "错误"
 
 
 def deepl_third_check(auth=deepl_auth_keys[-1]):
