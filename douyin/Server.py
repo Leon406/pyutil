@@ -5,6 +5,13 @@ import execjs
 import requests
 from flask import Flask, request, jsonify
 import re
+import os
+
+# 使用nvm安装 node
+ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
+
+with open('X-Bogus.js', encoding="utf8") as fp:
+    js_func = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
 
 app = Flask(__name__)
 
@@ -15,13 +22,13 @@ def generate_request_params():
     url = data.get('url')
     user_agent = data.get('user_agent')
     query = urllib.parse.urlparse(url).query
-    xbogus = execjs.compile(open('./X-Bogus.js').read()).call('sign', query, user_agent)
+    xbogus = js_func.call('sign', query, user_agent)
     new_url = url + "&X-Bogus=" + xbogus
     response_data = {
         "param": new_url,
         "X-Bogus": xbogus,
         "msToken": generate_random_str(),
-        # "ttwid": ttwid(),
+        "ttwid": ttwid(),
     }
     return jsonify(response_data)
 

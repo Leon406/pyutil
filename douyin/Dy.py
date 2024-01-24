@@ -11,19 +11,16 @@ import os
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
 
 # UA必须跟获取cookie的浏览器一致
-UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+UA = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 Edg/120.0.0.0"
 
 session = requests.session()
 
-with open('getXBoGust.js', encoding="utf8") as fp:
-    js_func = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
-
 with open('X-Bogus.js', encoding="utf8") as fp:
-    js_func2 = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
+    js_func = execjs.compile(fp.read(), cwd=ENV_NODE_JS + "\\node_modules")
 
 headers = {
     #  2023/03/17 后台加入cookie校验  s_v_web_id必须先过验证
-    "cookie": "ttwid=1%7CfAd-xtIAXDq0GGfzA6AkbXNJ11-dEzxQspZbqsmrN0w%7C1673262048%7Ca2150a159edd95de9da46d5efced2d6e0e2414859e4c4d3c896a4544f66dc003; ",
+    "cookie": "ttwid=1%7COtR5WXtMgJiC7pmdAtIhiZPIEflB-wn6uFgjYO0zffk%7C1690424153%7Caf85812ecbaed24088a0adf8b37bb4fc7b4fd46228f50600f984a4d2946f51f0; ",
     "referer": "https://www.douyin.com/user",
     "user-agent": UA
 }
@@ -43,46 +40,49 @@ def comment_list():
     print(response.text)
 
 
-def _add_xbogus(params):
-    url_path = urlencode(params, safe='=')
-    print(url_path)
-    params["X-Bogus"] = js_func.call("getXBoGust", url_path)
-
-
 def _add_xbogus2(params, user_agent):
     url_path = urlencode(params, safe='=')
     print(url_path, user_agent)
-    params["X-Bogus"] = js_func2.call("sign", url_path, user_agent)
+    params["X-Bogus"] = js_func.call("sign", url_path, user_agent)
     print( params["X-Bogus"])
 
 
 def _common_params():
     return {
-        "device_platform": "webapp",
-        "aid": "6383",
-        # "channel": "channel_pc_web",
-        # "pc_client_type": "1",
-        # "version_code": "170400",
-        # "version_name": "17.4.0",
-        # "cookie_enabled": "true",
-        "screen_width": "1920",
-        "screen_height": "1080",
-        # "browser_language": "zh-CN",
-        # "browser_platform": "Win32",
-        # "browser_name": "Chrome",
-        # "browser_version": "108.0.0.0",
-        # "browser_online": "true",
-        # "engine_name": "Blink",
-        # "engine_version": "108.0.0.0",
-        "os_name": "Windows",
-        "os_version": "10",
-        "cpu_core_num": "12",
-        "device_memory": "8",
-        "platform": "PC",
-        "downlink": "10",
-        "effective_type": "4g",
-        "round_trip_time": "100",
-        # "webid": "7186820922069665295",
+        "device_platform":"webapp",
+        "aid":"6383",
+        "channel":"channel_pc_web",
+        # "sec_user_id":"MS4wLjABAAAAHBzaYq41eZhmDn9cOTQya8X3-YxoAYTOLm1BM947R_A",
+        "max_cursor":"0",
+        "locate_query":"false",
+        "show_live_replay_strategy":"1",
+        "need_time_list":"1",
+        "time_list_query":"0",
+        "whale_cut_token":"",
+        "cut_version":"1",
+        # "count":"18",
+        "publish_video_strategy_type":"2",
+        "pc_client_type":"1",
+        "version_code":"170400",
+        "version_name":"17.4.0",
+        "cookie_enabled":"true",
+        "screen_width":"354",
+        "screen_height":"852",
+        "browser_language":"zh-CN",
+        "browser_platform":"Win32",
+        "browser_name":"Edge",
+        "browser_version":"120.0.0.0",
+        "browser_online":"true",
+        "engine_name":"Blink",
+        "engine_version":"120.0.0.0",
+        "os_name":"Android",
+        "os_version":"6.0",
+        "cpu_core_num":"12",
+        "device_memory":"8",
+        "platform":"Android",
+        "downlink":"10",
+        "effective_type":"4g",
+        "round_trip_time":"250",
     }
 
 
@@ -97,7 +97,7 @@ def social_count():
 def user():
     """用户信息"""
     headers["cookie"] = headers["cookie"] + \
-                        "ttwid=1%7CmKYQriuiDg_yUyQYU8SsO0BLRWWHot8TjPqs3zUWUsU%7C1673312168%7Cd2898f5fb30808177f883755ee3e61cf955726cc599aaef1c2574ae264160302; "
+                        "ttwid=1%7COtR5WXtMgJiC7pmdAtIhiZPIEflB-wn6uFgjYO0zffk%7C1690424153%7Caf85812ecbaed24088a0adf8b37bb4fc7b4fd46228f50600f984a4d2946f51f0; "
 
     params = _common_params()
     # params["publish_video_strategy_type"] = "2"
@@ -113,11 +113,11 @@ def videos():
     """主页视频"""
     params = _common_params()
     params["sec_user_id"] = "MS4wLjABAAAAHBzaYq41eZhmDn9cOTQya8X3-YxoAYTOLm1BM947R_A"
-    params["max_cursor"] = 1667207880000
-    params["locate_query"] = False
-    params["count"] = 10
-    params["show_live_replay_strategy"] = 1
-    params["publish_video_strategy_type"] = 2
+    # params["max_cursor"] = 1667207880000
+    # params["locate_query"] = False
+    params["count"] = 18
+    # params["show_live_replay_strategy"] = 1
+    # params["publish_video_strategy_type"] = 2
     _add_xbogus2(params, UA)
     print(urlencode(params, safe='='))
     response = session.get("https://www.douyin.com/aweme/v1/web/aweme/post/?" + urlencode(params, safe='='),
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     # comment_list()
     # social_count()
     # user()
-    # 不再编写完整爬取代码,请自行参考Douyin.py改写
-    # 2023年4月3日12:47:40 可能需要请求多次才能获取到结果
-    # 必须更换 UA/Cookie 2023年7月27日10:21:42 测试可用
+
+    # ttwid可用通过Server.py 获取
+    # 必须更换 UA/Cookie 2024年1月24日09:08:01 测试可用
     videos()
