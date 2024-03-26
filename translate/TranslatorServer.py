@@ -18,7 +18,6 @@ WORKERS = int(service["worker_threads"])
 
 app = Flask(__name__)
 pool = ThreadPoolExecutor(max_workers=WORKERS)
-start_time = time.time()
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
 # https://github.com/UlionTse/translators/blob/master/translators/server.py
 cn_translator = [
@@ -114,10 +113,10 @@ def is_server_ok(url: str, timeout: int = 3):
         if r.status_code == 200:
             return "translated-text" in r.text, url
         else:
-            print("~~~~~~")
+            # print("~~~~~~")
             return False, url
     except Exception as e:
-        print("~~~~~~ ", e)
+        # print("~~~~~~ ", e)
         return False, url
 
 
@@ -158,7 +157,7 @@ def deepl_third(sentence: str, src="EN", target="ZH"):
                       data={"text": sentence, "target_lang": target, "source_lang": src},
                       headers={
                           "Content-Type": "application/x-www-form-urlencoded",
-                          "Authorization": f"DeepL-Auth-Key {deepl_auth_keys[-1]}"})
+                          "Authorization": f"DeepL-Auth-Key {deepl_auth_keys[-1]}"}, timeout=REQ_TIMEOUT)
     print(r.json())
     try:
         if "msg" in r.json():
@@ -171,13 +170,14 @@ def deepl_third(sentence: str, src="EN", target="ZH"):
 
 def deepl_third_check(auth=deepl_auth_keys[-1]):
     return requests.get(f"{DEEPL_THIRD_SERVER}/v2/referral_usage", headers={
-        "Authorization": f"DeepL-Auth-Key {auth}"}).json()["referral_limit"]
+        "Authorization": f"DeepL-Auth-Key {auth}"}, timeout=REQ_TIMEOUT).json()["referral_limit"]
 
 
 def translators(
         text: str, translator: str = "bing", src: str = "zh", target: str = "en"
 ):
     try:
+        print(f" translator {translator} ")
         translated_text = ts.translate_text(
             text,
             from_language=src,
@@ -193,6 +193,7 @@ def translators(
 
 @app.route("/")
 def index():
+    start_time = time.time()
     trans = []
     print(request.args)
     fromLanguage = request.args["from"] if "from" in request.args else "en"
@@ -218,11 +219,13 @@ def index():
     for r in results:
         t, translated = r.result()
         cond = TYPE_DICT.__contains__(t)
+        print(f" type {t} ")
         t_ = TYPE_DICT[t] if cond else t
 
         if hideError and translated == "错误":
             continue
         trans.append([t_, translated])
+    print(f"end time: {time.time() -start_time}")
     return render_template("index.html", originalText=originalText, translators=trans)
 
 

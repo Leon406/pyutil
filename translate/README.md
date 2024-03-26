@@ -4,6 +4,8 @@
 
 ```
 pip install requests  translators
+# nodejs环境可选 ，centos linux命令
+yum install nodejs 
 ```
 
 ## 命令行
