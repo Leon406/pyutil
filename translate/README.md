@@ -65,6 +65,7 @@ listen = 0.0.0.0
 port = 5000
 worker_threads = 16
 req_timeout = 3
+hide_error = 1
 ```
 
 ## 服务启动
@@ -88,6 +89,7 @@ http://127.0.0.1:5000/?from=en&to=zh-CN&d=hello
 
 - from  来源语言,默认en
 - to  目标语言, 默认zh-CN
+- hide  隐藏错误引擎， 0显示 ，1显示，通过service.conf修改默认值
 - d   需要翻译的内容
 
 

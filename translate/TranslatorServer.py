@@ -12,6 +12,7 @@ config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
 service = config["service"]
 REQ_TIMEOUT = int(service["req_timeout"])
+HIDE_ERROR = int(service["hide_error"]) == 1
 PORT = int(service["port"])
 WORKERS = int(service["worker_threads"])
 
@@ -19,24 +20,32 @@ app = Flask(__name__)
 pool = ThreadPoolExecutor(max_workers=WORKERS)
 start_time = time.time()
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
+# https://github.com/UlionTse/translators/blob/master/translators/server.py
 cn_translator = [
     # 无法正常翻译
     # "deepl",
     # "google",
-    #  "bing",
     # "yeekit",
     # "volcEngine",
     # "niutrans",
     # "cloudYi",
+
     "youdao",
+    "bing",
     "sogou",
-    # "bing",
-    "baidu",
-    # "caiyun",
+    # "baidu",
+    # "qqFanyi",
+    "qqTranSmart",
+    "hujiang",
+    "caiyun",
     "iflyrec",
     "iciba",
     "alibaba",
-    # "qqFanyi"
+    "myMemory",
+    "lingvanex",
+    "modernMt",
+    "sysTran",
+    "argos",
 ]
 # refer https://github.com/UlionTse/translators
 TYPE_DICT = {
@@ -52,10 +61,13 @@ TYPE_DICT = {
     "iflyrec": "讯飞听见",
     "niutrans": "小牛翻译",
     "qqFanyi": "腾讯翻译君",
+    "qqTranSmart": "腾讯翻译",
     "cloudYi": "云译",
     "volcEngine": "火山翻译",
     "yeekit": "Yeekit中译语通",
     "lingva": "lingva",
+    "lingvanex": "lingvanex",
+    "hujiang": "沪江(百度)",
 }
 
 servers = [
@@ -141,6 +153,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
 def deepl_third(sentence: str, src="EN", target="ZH"):
     target = target.split("-")[0].upper()
     src = src.split("-")[0].upper()
+
     r = requests.post(f"{DEEPL_THIRD_SERVER}/v2/translate",
                       data={"text": sentence, "target_lang": target, "source_lang": src},
                       headers={
@@ -184,6 +197,7 @@ def index():
     print(request.args)
     fromLanguage = request.args["from"] if "from" in request.args else "en"
     toLanguage = request.args["to"] if "to" in request.args else "zh-CN"
+    hideError = int(request.args["hide"]) == 1 if "hide" in request.args else HIDE_ERROR
     originalText = (
         request.args["d"]
         if "d" in request.args
@@ -203,7 +217,12 @@ def index():
     )
     for r in results:
         t, translated = r.result()
-        trans.append([TYPE_DICT[t], translated])
+        cond = TYPE_DICT.__contains__(t)
+        t_ = TYPE_DICT[t] if cond else t
+
+        if hideError and translated == "错误":
+            continue
+        trans.append([t_, translated])
     return render_template("index.html", originalText=originalText, translators=trans)
 
 
