@@ -6,7 +6,7 @@ import requests
 import translators as ts
 from flask import Flask, render_template, request
 
-debug = False
+debug = True
 # 读取service.conf配置文件
 config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
@@ -225,7 +225,17 @@ def index():
         if hideError and translated == "错误":
             continue
         trans.append([t_, translated])
-    print(f"end time: {time.time() -start_time}")
+
+    combined = {}
+    for (t, tr) in trans:
+        print(f"-- {tr}  --{t}")
+        if tr not in combined:
+            combined[tr] = t
+        else:
+            combined[tr] = combined[tr] + " & " + t
+    print(f"--ccc {combined}")
+    trans = zip(combined.values(), combined.keys())
+    print(f"end time: {time.time() - start_time}")
     return render_template("index.html", originalText=originalText, translators=trans)
 
 
