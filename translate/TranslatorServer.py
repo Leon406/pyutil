@@ -6,7 +6,7 @@ import requests
 import translators as ts
 from flask import Flask, render_template, request
 
-debug = True
+debug = False
 # 读取service.conf配置文件
 config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
@@ -16,6 +16,7 @@ HIDE_ERROR = int(service["hide_error"]) == 1
 PORT = int(service["port"])
 WORKERS = int(service["worker_threads"])
 
+ERROR_INFO = "Response Error 错误"
 app = Flask(__name__)
 pool = ThreadPoolExecutor(max_workers=WORKERS)
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
@@ -146,7 +147,7 @@ def google_mirror(text: str, src="en", target="zh-CN"):
         return "google", trans.json()["translated-text"]
     except Exception as e:
         print(e)
-        return "google", "错误"
+        return "google", ERROR_INFO
 
 
 def deepl_third(sentence: str, src="EN", target="ZH"):
@@ -165,7 +166,7 @@ def deepl_third(sentence: str, src="EN", target="ZH"):
         return "deepl", r.json()["translations"][0]["text"]
     except Exception as e:
         print(e)
-        return "deepl", "错误"
+        return "deepl", ERROR_INFO
 
 
 def deepl_third_check(auth=deepl_auth_keys[-1]):
@@ -187,8 +188,8 @@ def translators(
         )
         return translator, translated_text
     except Exception as e:
-        print(e)
-        return translator, "错误"
+        print(f"\t\t error: translator {translator} {e}")
+        return translator, ERROR_INFO
 
 
 @app.route("/")
@@ -219,10 +220,11 @@ def index():
     for r in results:
         t, translated = r.result()
         cond = TYPE_DICT.__contains__(t)
-        print(f" type {t} ")
+        print(f" type {t} {translated}")
         t_ = TYPE_DICT[t] if cond else t
 
-        if hideError and translated == "错误":
+        # 错误数据 空结果过滤
+        if hideError and (translated == ERROR_INFO or not translated.strip()):
             continue
         trans.append([t_, translated])
 
