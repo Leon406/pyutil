@@ -79,7 +79,19 @@ def deepl_third_check():
         "Authorization": f"DeepL-Auth-Key {auth}"}).json()["referral_limit"]
 
 
+def tr():
+    import translators as ts
+    translated_text = ts.translate_text(
+        "hello leon",
+        from_language="en",
+        to_language="zh",
+        translator="baidu",
+        timeout=3,
+    )
+    print(translated_text)
+
 if __name__ == '__main__':
     # print(check_servers(servers))
+    tr()
     print(deepl_third("Hello world!"))
     print(deepl_third_check())
