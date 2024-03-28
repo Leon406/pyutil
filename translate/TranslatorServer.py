@@ -221,9 +221,8 @@ def index():
     )
     for r in results:
         t, translated = r.result()
-        cond = TYPE_DICT.__contains__(t)
         print(f" type {t} {translated}")
-        t_ = TYPE_DICT[t] if cond else t
+        t_ = TYPE_DICT[t] if t in TYPE_DICT else t
 
         # 错误数据 空结果过滤
         if hideError and (translated == ERROR_INFO or not translated.strip()):
