@@ -25,22 +25,26 @@ cn_translator = [
     # 无法正常翻译
     # "deepl",
     # "google",
+
+    #  README状态 不可用
     # "yeekit",
     # "volcEngine",
     # "niutrans",
-    # "cloudYi",
 
     "youdao",
     "bing",
     "sogou",
     "baidu",
-    # "qqFanyi",
+
     "qqTranSmart",
+    "qqFanyi",
     "caiyun",
     "iflyrec",
+
     "hujiang",
     "iciba",
     "alibaba",
+
     "myMemory",
     "lingvanex",
     "modernMt",
@@ -61,13 +65,11 @@ TYPE_DICT = {
     "iflyrec": "讯飞听见",
     "niutrans": "小牛翻译",
     "qqFanyi": "腾讯翻译君",
-    "qqTranSmart": "腾讯翻译",
-    "cloudYi": "云译",
+    "qqTranSmart": "腾讯交互翻译",
     "volcEngine": "火山翻译",
     "yeekit": "Yeekit中译语通",
-    "lingva": "lingva",
     "lingvanex": "lingvanex",
-    "hujiang": "沪江(百度)",
+    "hujiang": "沪江",
 }
 
 servers = [

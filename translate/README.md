@@ -1,10 +1,13 @@
+<p align="center"><img src="https://profile-counter.glitch.me/Leon406_pyutil_translate/count.svg" alt="pyutil :: Visitor's Count" />
+ <img width=0 height=0 src="https://profile-counter.glitch.me/Leon406/count.svg" alt="Leon406:: Visitor's Count" />
+</p>
 # 外部程序
 
 ## 依赖
 
 ```
 pip install requests  translators
-# nodejs环境可选 ，centos linux命令
+#Linux无桌面 需要安装nodejs ，centos linux命令
 yum install nodejs 
 ```
 
