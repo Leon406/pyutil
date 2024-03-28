@@ -172,6 +172,12 @@ def deepl_third(sentence: str, src="EN", target="ZH"):
 
 
 def deepl_third_check(auth=deepl_auth_keys[-1]):
+    jsonData = requests.get(f"{DEEPL_THIRD_SERVER}/v2/usage", headers={
+        "Authorization": f"DeepL-Auth-Key {auth}"}, timeout=REQ_TIMEOUT).json()
+    return f"{jsonData['character_count']}/{jsonData['character_limit']}"
+
+
+def deepl_third_referral(auth=deepl_auth_keys[-1]):
     return requests.get(f"{DEEPL_THIRD_SERVER}/v2/referral_usage", headers={
         "Authorization": f"DeepL-Auth-Key {auth}"}, timeout=REQ_TIMEOUT).json()["referral_limit"]
 
