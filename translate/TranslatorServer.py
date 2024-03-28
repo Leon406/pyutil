@@ -53,23 +53,27 @@ cn_translator = [
 ]
 # refer https://github.com/UlionTse/translators
 TYPE_DICT = {
-    "baidu": "百度翻译",
+    "baidu": "百度",
     "bing": "必应",
-    "deepl": "Deepl",
+    "deepl": "DeepL",
     "youdao": "有道智云",
     "iciba": "金山词霸",
-    "alibaba": "阿里翻译",
-    "sogou": "搜狗翻译",
+    "alibaba": "阿里",
+    "sogou": "搜狗",
     "caiyun": "彩云小译",
-    "google": "Google翻译",
+    "google": "Google",
     "iflyrec": "讯飞听见",
-    "niutrans": "小牛翻译",
+    "niutrans": "小牛",
     "qqFanyi": "腾讯翻译君",
     "qqTranSmart": "腾讯交互翻译",
-    "volcEngine": "火山翻译",
+    "volcEngine": "火山",
     "yeekit": "Yeekit中译语通",
-    "lingvanex": "lingvanex",
+    "lingvanex": "Lingvanex",
     "hujiang": "沪江",
+    "modernMt": "ModernMT",
+    "myMemory": "MyMemory",
+    "argos": "Argos",
+    "sysTran": "Systran",
 }
 
 servers = [
@@ -100,6 +104,7 @@ servers = [
 
 okServers = []
 # 自行注册无需信用卡,免费20W/月  https://deepl-pro.com/#/translate
+# 使用邀请链接可以多获取20W/月  https://deepl-pro.com/#/translate?referral_code=Bw9Ic9czPM
 DEEPL_THIRD_SERVER = "https://api.deepl-pro.com"
 auth = "2f8a0549-d214-4509-b880-98618419f562:dp"
 
@@ -241,11 +246,11 @@ def index():
         if tr not in combined:
             combined[tr] = t
         else:
-            combined[tr] = combined[tr] + " & " + t
-    print(f"--ccc {combined}")
+            combined[tr] = combined[tr] + " · " + t
     trans = zip(combined.values(), combined.keys())
-    print(f"end time: {time.time() - start_time}")
-    return render_template("index.html", originalText=originalText, translators=trans)
+    info = f"It takes {(time.time() - start_time):.2f} seconds"
+    print(info)
+    return render_template("index.html", originalText=originalText, translators=trans, info=info)
 
 
 @app.route("/add_deepl_auth")
