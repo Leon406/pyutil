@@ -138,11 +138,12 @@ def deeplx_free(sentence: str, src="EN", target="ZH"):
 
     data = {"text": sentence, "target_lang": target, "source_lang": src}
     r = requests.post(f"{random.choice(deepx_servers)}/translate", json=data)
-    jsonStr = r.json()
-    if "data" not in jsonStr:
-        print(jsonStr)
+    json_str = r.json()
+    print(json_str)
+    if "data" not in json_str:
+        print(json_str)
         return
-    return jsonStr["data"] + "\r\n" + "\r\n".join(jsonStr["alternatives"])
+    return json_str["data"] + (("\r\n" + "\r\n".join(json_str["alternatives"])) if json_str["alternatives"] else "")
 
 
 def deepl_third_check():
@@ -164,8 +165,9 @@ def tr():
 
 if __name__ == '__main__':
     # print(check_servers(servers))
-    deepx_servers = check_deepx_servers(deepx_servers)
-    print(deepx_servers)
-    # tr()
-    # print(deeplx_free("La La, Hello world!"))
+    # deepx_servers = check_deepx_servers(deepx_servers)
+    # print(deepx_servers)
+    # # tr()
+    print(deeplx_free(
+        "Cecil Scott Forester (1899-1966) an English writer, best known for his historical novels about life in the Royal Navy. He created the famous character Horatio Hornblower, and wrote 12 novels about his adventures at sea during the Napoleonic Wars."))
     # print(deepl_third_check())

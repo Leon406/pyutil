@@ -57,7 +57,7 @@ TYPE_DICT = {
     "baidu": "百度",
     "bing": "必应",
     "deepl": "DeepL",
-    "deeplx": "DeepLX Free（有候选）",
+    "deeplx": "DeepLX（候选）",
     "youdao": "有道智云",
     "iciba": "金山词霸",
     "alibaba": "阿里",
@@ -248,7 +248,7 @@ def deeplx_free(sentence: str, src="EN", target="ZH"):
 
     try:
         json_str = r.json()
-        return "deeplx", json_str["data"] + "<br/>" + "<br/>".join(json_str["alternatives"])
+        return "deeplx", json_str["data"] + (("<br/>" + "<br/>".join(json_str["alternatives"])) if json_str["alternatives"] else "")
     except Exception as e:
         print(e)
         return "deeplx", ERROR_INFO
