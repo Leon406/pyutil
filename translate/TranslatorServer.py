@@ -1,4 +1,5 @@
 import configparser
+import random
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -22,7 +23,7 @@ pool = ThreadPoolExecutor(max_workers=WORKERS)
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
 # https://github.com/UlionTse/translators/blob/master/translators/server.py
 cn_translator = [
-    # 无法正常翻译
+    # 无法正常翻译 ,采用自实现镜像
     # "deepl",
     # "google",
 
@@ -56,6 +57,7 @@ TYPE_DICT = {
     "baidu": "百度",
     "bing": "必应",
     "deepl": "DeepL",
+    "deeplx": "DeepLX Free（有候选）",
     "youdao": "有道智云",
     "iciba": "金山词霸",
     "alibaba": "阿里",
@@ -76,7 +78,7 @@ TYPE_DICT = {
     "sysTran": "Systran",
 }
 
-servers = [
+google_mirror_servers = [
     "simplytranslate.org",
     "st.alefvanoon.xyz",
     "translate.josias.dev",
@@ -102,7 +104,31 @@ servers = [
     "translate.priv.pw",
 ]
 
-okServers = []
+# https://github.com/CaoYunzhou/cf-free-deeplx
+# https://github.com/xiaozhou26/serch_deeplx/blob/main/success.txt
+deeplx_servers = [
+    "https://deepx.dumpit.top",
+    "https://deepl.tr1ck.cn",
+    "https://deeplx.keyrotate.com",
+    "https://dlx.bitjss.com",
+    "https://deepl.yuwentian.com",
+    "https://deepl.wuyongx.uk",
+    "https://deeplx.he-sb.top",
+    "https://deepl.aimoyu.tech",
+    "http://107.150.100.170:8880",
+    "https://deeplx.ychinfo.com",
+    "http://deepl.wuyongx.uk",
+    "https://api.deeplx.org",
+    # "https://deeplx.vercel.app",
+    "https://dx-api.nosec.link",
+    "https://deepl.zhaosaipo.com",
+    "https://deeplx.papercar.top",
+    "http://20.89.253.28",
+    "https://deepl.mukapp.top",
+    "https://deepl.degbug.top",
+    "https://deepl.coloo.org",
+]
+
 # 自行注册无需信用卡,免费20W/月  https://deepl-pro.com/#/translate
 # 使用邀请链接可以多获取20W/月  https://deepl-pro.com/#/translate?referral_code=Bw9Ic9czPM
 DEEPL_THIRD_SERVER = "https://api.deepl-pro.com"
@@ -111,6 +137,7 @@ auth = "2f8a0549-d214-4509-b880-98618419f562:dp"
 deepl_auth_keys = [auth]
 
 
+# region 第三方镜像及服务筛选
 def is_server_ok(url: str, timeout: int = 3):
     try:
         r = requests.get(
@@ -138,15 +165,37 @@ def check_servers(domains):
     return ok
 
 
-okServers.extend(check_servers(servers))
+def is_deeplx_server_ok(url: str, timeout: int = 1):
+    try:
+        data = {"text": "Hello Leon", "target_lang": "ZH", "source_lang": "EN"}
+        r = requests.post(f"{url}/translate", json=data)
+        if r.status_code == 200:
+            return "data" in r.json(), url
+        else:
+            print("~~~~~~", url, r.text)
+            return False, url
+    except Exception as e:
+        print("~~~~~~ ", url, e)
+        return False, url
 
-print(okServers)
+
+def check_deeplx_servers(urls):
+    ok = []
+    results = [pool.submit(is_deeplx_server_ok, url, 3) for url in urls]
+    for r in results:
+        state, url = r.result()
+        if state:
+            ok.append(url)
+    return ok
 
 
+# endregion
+
+# region 第三方翻译
 def google_mirror(text: str, src="en", target="zh-CN"):
     try:
         trans = requests.get(
-            f"{okServers[0]}/api/translate/",
+            f"{google_mirror_servers[0]}/api/translate/",
             params={"engine": "google", "from": src, "to": target, "text": text},
             timeout=REQ_TIMEOUT,
         )
@@ -187,6 +236,25 @@ def deepl_third_referral(auth=deepl_auth_keys[-1]):
         "Authorization": f"DeepL-Auth-Key {auth}"}, timeout=REQ_TIMEOUT).json()["referral_limit"]
 
 
+def deeplx_free(sentence: str, src="EN", target="ZH"):
+    """主翻译 + 3个候选"""
+    target = target.split("-")[0].upper()
+    src = src.split("-")[0].upper()
+
+    data = {"text": sentence, "target_lang": target, "source_lang": src}
+    r = requests.post(f"{random.choice(deeplx_servers)}/translate", json=data)
+
+    try:
+        json_str = r.json()
+        return "deeplx", json_str["data"] + "<br/>" + "<br/>".join(json_str["alternatives"])
+    except Exception as e:
+        print(e)
+        return "deeplx", ERROR_INFO
+
+
+# endregion
+
+
 def translators(
         text: str, translator: str = "bing", src: str = "zh", target: str = "en"
 ):
@@ -205,6 +273,7 @@ def translators(
         return translator, ERROR_INFO
 
 
+# region 对外服务
 @app.route("/")
 def index():
     start_time = time.time()
@@ -228,7 +297,10 @@ def index():
         0, pool.submit(deepl_third, originalText, fromLanguage, toLanguage)
     )
     results.insert(
-        1, pool.submit(google_mirror, originalText, fromLanguage, toLanguage)
+        1, pool.submit(deeplx_free, originalText, fromLanguage, toLanguage)
+    )
+    results.insert(
+        2, pool.submit(google_mirror, originalText, fromLanguage, toLanguage)
     )
     for r in results:
         t, translated = r.result()
@@ -274,12 +346,21 @@ def deepl_query():
     return {"auth": auth, "quota": count}
 
 
+# endregion
+
+print("==>筛选 google镜像")
+google_mirror_servers = check_servers(google_mirror_servers)
+print("==>筛选 deeplx 镜像")
+deeplx_servers = check_deeplx_servers(deeplx_servers)
+print("\t<==筛选 deeplx 镜像")
 if __name__ == "__main__":
     if debug:
+        print("------- Flask starting!!!")
         app.run(host=service["listen"], port=PORT, debug=False)
     else:
         # 改用waitress WSGI
         from waitress import serve
-
+        print("------- waitress starting!!!")
         serve(app, host=service["listen"], port=PORT)
         app.run()
+

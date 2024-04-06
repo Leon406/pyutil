@@ -48,7 +48,7 @@
 {% for translator in translators %}
     <span class="engine">{{ translator[0] }}</span>
     <div class="frame">
-        <definition onClick=copy(this)>{{ translator[1] }}</definition>
+        <definition onClick=copy(this)>{{ translator[1]|safe }}</definition>
     </div>
 {% endfor %}
 
