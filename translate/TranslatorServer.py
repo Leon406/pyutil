@@ -248,7 +248,8 @@ def deeplx_free(sentence: str, src="EN", target="ZH"):
 
     try:
         json_str = r.json()
-        return "deeplx", json_str["data"] + (("<br/>" + "<br/>".join(json_str["alternatives"])) if json_str["alternatives"] else "")
+        return "deeplx", json_str["data"] + (
+            ("<br/>" + "<br/>".join(json_str["alternatives"])) if json_str["alternatives"] else "")
     except Exception as e:
         print(e)
         return "deeplx", ERROR_INFO
@@ -312,8 +313,9 @@ def index():
         print(f" type {t} {translated}")
         t_ = TYPE_DICT[t] if t in TYPE_DICT else t
 
-        # 错误数据 空结果过滤
-        if hideError and (translated == ERROR_INFO or not translated.strip()):
+        # 错误数据 空结果,无翻译，仅标点过滤
+        if hideError and (
+                translated == ERROR_INFO or not translated.strip() or translated == "。" or translated == originalText):
             continue
         trans.append([t_, translated])
 
