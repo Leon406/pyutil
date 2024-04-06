@@ -8,7 +8,7 @@ import translators as ts
 from flask import Flask, render_template, request
 
 debug = False
-# 读取service.conf配置文件
+# region 读service.conf配置文件
 config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
 service = config["service"]
@@ -16,10 +16,10 @@ REQ_TIMEOUT = int(service["req_timeout"])
 HIDE_ERROR = int(service["hide_error"]) == 1
 PORT = int(service["port"])
 WORKERS = int(service["worker_threads"])
+# endregion
 
 ERROR_INFO = "Response Error 错误"
-app = Flask(__name__)
-pool = ThreadPoolExecutor(max_workers=WORKERS)
+
 # 按需调整翻译引擎, 已支持多线程,基本不影响整体加载速度
 # https://github.com/UlionTse/translators/blob/master/translators/server.py
 cn_translator = [
@@ -78,6 +78,7 @@ TYPE_DICT = {
     "sysTran": "Systran",
 }
 
+# region 镜像服务器
 google_mirror_servers = [
     "simplytranslate.org",
     "st.alefvanoon.xyz",
@@ -114,7 +115,7 @@ deeplx_servers = [
     "https://deepl.yuwentian.com",
     "https://deepl.wuyongx.uk",
     "https://deeplx.he-sb.top",
-    "https://deepl.aimoyu.tech",
+    # "https://deepl.aimoyu.tech",
     "http://107.150.100.170:8880",
     "https://deeplx.ychinfo.com",
     "http://deepl.wuyongx.uk",
@@ -128,6 +129,7 @@ deeplx_servers = [
     "https://deepl.degbug.top",
     "https://deepl.coloo.org",
 ]
+# endregion
 
 # 自行注册无需信用卡,免费20W/月  https://deepl-pro.com/#/translate
 # 使用邀请链接可以多获取20W/月  https://deepl-pro.com/#/translate?referral_code=Bw9Ic9czPM
@@ -157,7 +159,7 @@ def is_server_ok(url: str, timeout: int = 3):
 
 def check_servers(domains):
     ok = []
-    results = [pool.submit(is_server_ok, f"https://{server}", 3) for server in domains]
+    results = [pool.submit(is_server_ok, f"https://{server}", REQ_TIMEOUT) for server in domains]
     for r in results:
         state, url = r.result()
         if state:
@@ -168,7 +170,7 @@ def check_servers(domains):
 def is_deeplx_server_ok(url: str, timeout: int = 1):
     try:
         data = {"text": "Hello Leon", "target_lang": "ZH", "source_lang": "EN"}
-        r = requests.post(f"{url}/translate", json=data)
+        r = requests.post(f"{url}/translate", json=data, timeout=timeout)
         if r.status_code == 200:
             return "data" in r.json(), url
         else:
@@ -181,7 +183,7 @@ def is_deeplx_server_ok(url: str, timeout: int = 1):
 
 def check_deeplx_servers(urls):
     ok = []
-    results = [pool.submit(is_deeplx_server_ok, url, 3) for url in urls]
+    results = [pool.submit(is_deeplx_server_ok, url, REQ_TIMEOUT) for url in urls]
     for r in results:
         state, url = r.result()
         if state:
@@ -242,7 +244,7 @@ def deeplx_free(sentence: str, src="EN", target="ZH"):
     src = src.split("-")[0].upper()
 
     data = {"text": sentence, "target_lang": target, "source_lang": src}
-    r = requests.post(f"{random.choice(deeplx_servers)}/translate", json=data)
+    r = requests.post(f"{random.choice(deeplx_servers)}/translate", json=data, timeout=REQ_TIMEOUT)
 
     try:
         json_str = r.json()
@@ -274,6 +276,9 @@ def translators(
 
 
 # region 对外服务
+app = Flask(__name__)
+
+
 @app.route("/")
 def index():
     start_time = time.time()
@@ -348,6 +353,8 @@ def deepl_query():
 
 # endregion
 
+pool = ThreadPoolExecutor(max_workers=WORKERS)
+
 print("==>筛选 google镜像")
 google_mirror_servers = check_servers(google_mirror_servers)
 print("==>筛选 deeplx 镜像")
@@ -360,7 +367,7 @@ if __name__ == "__main__":
     else:
         # 改用waitress WSGI
         from waitress import serve
+
         print("------- waitress starting!!!")
         serve(app, host=service["listen"], port=PORT)
         app.run()
-
