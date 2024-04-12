@@ -7,7 +7,7 @@ import requests
 import translators as ts
 from flask import Flask, render_template, request
 
-debug = False
+debug = True
 # region 读service.conf配置文件
 config = configparser.ConfigParser()
 config.read("service.conf", encoding="utf-8")
@@ -371,5 +371,5 @@ if __name__ == "__main__":
         from waitress import serve
 
         print("------- waitress starting!!!")
-        serve(app, host=service["listen"], port=PORT)
+        serve(app, host=service["listen"], port=PORT, threads=4)
         app.run()
