@@ -244,9 +244,9 @@ def deeplx_free(sentence: str, src="EN", target="ZH"):
     src = src.split("-")[0].upper()
 
     data = {"text": sentence, "target_lang": target, "source_lang": src}
-    r = requests.post(f"{random.choice(deeplx_servers)}/translate", json=data, timeout=REQ_TIMEOUT)
 
     try:
+        r = requests.post(f"{random.choice(deeplx_servers)}/translate", json=data, timeout=REQ_TIMEOUT)
         json_str = r.json()
         return "deeplx", json_str["data"] + (
             ("<br/>" + "<br/>".join(json_str["alternatives"])) if json_str["alternatives"] else "")
