@@ -7,7 +7,7 @@ import requests
 from urllib.parse import urlencode
 import os
 
-# 使用nvm安装 node
+# 使用nvm安装 node 需要安装 md5依赖
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
 
 # UA必须跟获取cookie的浏览器一致
@@ -139,5 +139,6 @@ if __name__ == '__main__':
     # user()
 
     # ttwid可用通过Server.py 获取
-    # 必须更换 UA/Cookie 2024年4月25日10:14:12 测试可用
+    # 必须更换 UA/Cookie 2024年8月23日09:45:14 测试可用，
+    # 注意: 视频下载官方加入Referer校验
     videos()

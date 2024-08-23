@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 import re
 import os
 
-# 使用nvm安装 node
+# 使用nvm安装 node, 需要安装 md5依赖
 ENV_NODE_JS = os.environ.get('NVM_SYMLINK')
 
 with open('X-Bogus.js', encoding="utf8") as fp:
