@@ -74,29 +74,8 @@ servers = [
 
 # https://github.com/CaoYunzhou/cf-free-deeplx
 # https://github.com/xiaozhou26/serch_deeplx/blob/main/success.txt
-deepx_servers = [
-    "https://deepx.dumpit.top",
-    "https://deepl.tr1ck.cn",
-    "https://deeplx.keyrotate.com",
-    "https://dlx.bitjss.com",
-    "https://deepl.yuwentian.com",
-    "https://deepl.wuyongx.uk",
-    "https://deeplx.he-sb.top",
-    "https://deepl.aimoyu.tech",
-    "http://107.150.100.170:8880",
-    "https://deeplx.ychinfo.com",
-    "http://deepl.wuyongx.uk",
-    "https://api.deeplx.org",
-    "https://deeplx.vercel.app",
-    "https://dx-api.nosec.link",
-    "https://deepl.zhaosaipo.com",
-    "https://deeplx.papercar.top",
-    "https://translate.dftianyi.com",
-    "http://20.89.253.28",
-    "https://deepl.mukapp.top",
-    "https://deepl.degbug.top",
-    "https://deepl.coloo.org",
-]
+deeplx_servers = [
+    'http://132.226.232.50:1188', 'http://165.154.203.71:1188', 'http://82.157.49.14:1188', 'http://123.56.13.17:1188', 'http://121.43.134.47:1188', 'http://138.2.11.53:1188', 'http://124.223.85.170:1188', 'http://116.62.112.61:1188', 'http://42.193.219.103:1188', 'http://47.76.48.116:1188', 'http://168.138.161.222:1188', 'http://141.11.90.131:1188', 'https://deeplx.qninq.cn', 'https://deeplx.qiud.org', 'http://106.14.155.58:18019', 'https://deepl.kevinzhang.cn', 'http://23.94.25.208:1188', 'http://deeplx.qninq.cn']
 
 server = "https://api.deepl-pro.com"
 serverx = "https://deepx.dumpit.top"
@@ -108,6 +87,7 @@ def deepl_third(sentence: str, src="EN", target="ZH"):
     src = src.split("-")[0].upper()
     r = requests.post(f"{server}/translate",
                       data={"text": sentence, "target_lang": target, "source_lang": src},
+                      timeout= 5,
                       headers={
                           "Content-Type": "application/x-www-form-urlencoded",
                           "Authorization": f"DeepL-Auth-Key {auth}"})
@@ -137,7 +117,7 @@ def deeplx_free(sentence: str, src="EN", target="ZH"):
     src = src.split("-")[0].upper()
 
     data = {"text": sentence, "target_lang": target, "source_lang": src}
-    r = requests.post(f"{random.choice(deepx_servers)}/translate", json=data)
+    r = requests.post(f"{random.choice(deeplx_servers)}/translate", json=data)
     json_str = r.json()
     print(json_str)
     if "data" not in json_str:
@@ -165,9 +145,10 @@ def tr():
 
 if __name__ == '__main__':
     # print(check_servers(servers))
-    # deepx_servers = check_deepx_servers(deepx_servers)
-    # print(deepx_servers)
+    deeplx_servers = check_deepx_servers(deeplx_servers)
+    print(deeplx_servers)
+
     # # tr()
-    print(deeplx_free(
-        "Cecil Scott Forester (1899-1966) an English writer, best known for his historical novels about life in the Royal Navy. He created the famous character Horatio Hornblower, and wrote 12 novels about his adventures at sea during the Napoleonic Wars."))
-    # print(deepl_third_check())
+    # print(deeplx_free(
+    #     "Cecil Scott Forester (1899-1966) an English writer, best known for his historical novels about life in the Royal Navy. He created the famous character Horatio Hornblower, and wrote 12 novels about his adventures at sea during the Napoleonic Wars."))
+    # # print(deepl_third_check())
