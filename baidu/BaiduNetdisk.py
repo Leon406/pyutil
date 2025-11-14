@@ -11,6 +11,7 @@ REPLACE = r""
 
 # 接口请求参数, 重命名可以不需要
 BDSTOKEN = ""
+
 # cookie信息
 BDUSS_BFESS = ""
 STOKEN = ""
@@ -34,7 +35,7 @@ def search(key, page=1):
     jsonStr = response.json()
 
     datas = jsonStr["list"]
-    print(len(datas), jsonStr["has_more"])
+    print(len(datas), jsonStr["has_more"],jsonStr)
     files = []
     dirs = []
     for data in datas:
@@ -105,7 +106,7 @@ def delete(file_list):
     pass
 
 
-if __name__ == '__main__':
+def baidu():
     page = 1
     has_more, files, dirs = search(SEARCH_KEY, page)
     print(files)
@@ -114,6 +115,7 @@ if __name__ == '__main__':
     while has_more == 1 and page < PAGE:
         page += 1
         print(f"=========>{page}")
+        # has_more 都是0, 2025.11.14
         has_more, tmp_files, tmp_dirs = search(SEARCH_KEY, page)
         print(f"=========> has_more{has_more}")
         files.extend(tmp_files)
@@ -139,3 +141,9 @@ if __name__ == '__main__':
     if len(deletelist) > 0:
         delete_data = {"filelist": json.dumps(deletelist, ensure_ascii=False)}
         delete(delete_data)
+
+
+if __name__ == '__main__':
+    while (1):
+        baidu()
+        time.sleep(60)
